@@ -40,6 +40,13 @@ MAIN PROC
 
 MAIN ENDP
 
+;---------------------------------------
+    ; Function: DrawBricks_proc
+    ; Purpose: Draws the bricks on the screen
+    ; Inputs: brick_initial_x, brick_initial_y => to determine the position of the bricks
+    ; Outputs: Updates SI, DI to traverse the grid of bricks.
+;---------------------------------------
+
 DrawBricks_proc PROC NEAR
    MOV SI, offset brick_initial_x    ; set the column
    MOV DI, offset brick_initial_y    ; set the row
@@ -59,6 +66,15 @@ DrawBricks_proc PROC NEAR
 RET
 DrawBricks_proc ENDP
 
+;---------------------------------------
+; Function: DrawBrick_proc
+; Purpose: Draws a single brick on the screen.
+; Inputs:
+;  - SI: Pointer to the initial X position of the brick (column).
+;  - DI: Pointer to the initial Y position of the brick (row).
+; Outputs:
+;  - Draws a rectangular block of pixels at the specified position.
+;---------------------------------------
 
 DrawBrick_proc PROC NEAR
    PUSH CX 
