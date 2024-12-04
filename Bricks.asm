@@ -7,11 +7,11 @@
 brick_width DW 40    ; width of each brick
 brick_height DW 6    ; height of each brick
 brick_initial_x DW 10, 60, 110, 160, 210, 260   ; brick columns
-brick_initial_y DW 20, 46, 72    ; brick rows
+brick_initial_y DW 20, 46, 72                   ; brick rows
+
+; BRICKS COLORS
+brick_colors DB 3, 5, 9
   
-
-
-
 .CODE
 MAIN PROC
     MOV AX, @DATA
@@ -24,15 +24,6 @@ MAIN PROC
 
     CALL DrawBricks_proc
 
-
-    ; wait for a key press
-    MOV AH, 00H
-    INT 16H
-
-    ; return to text mode
-    MOV AH, 00H
-    MOV AL, 03H
-    INT 10H
 
     ; terminate the program
     MOV AH, 4CH
@@ -48,21 +39,27 @@ MAIN ENDP
 ;---------------------------------------
 
 DrawBricks_proc PROC NEAR
+
+   PUSH BX
    MOV SI, offset brick_initial_x    ; set the column
    MOV DI, offset brick_initial_y    ; set the row
+   MOV BX, 0
 
    draw_bricks:
+    MOV AL, brick_colors[BX]           ; set the color of the brick
     CALL DrawBrick_proc                ; draw the brick at (SI,DI)
     ADD SI, 2                          ; draw the next brick horizontally
     CMP SI, offset brick_initial_x + 12 ; compare the column with the last brick
     JB draw_bricks                    ; if SI < offset brick_initial_x + 8, continue the loop
 
     MOV SI, offset brick_initial_x     ; reset the column
+   
 
     ADD DI, 2                          ; draw the next brick vertically
     CMP DI, offset brick_initial_y + 6 ; compare the row with the last brick
-    JB draw_bricks                    ; if DI < offset brick_initial_y + 3, continue the loop
-
+    INC BX                             ; increment the color index
+    JB draw_bricks                     ; if DI < offset brick_initial_y + 3, continue the loop
+    POP BX
 RET
 DrawBricks_proc ENDP
 
@@ -72,6 +69,7 @@ DrawBricks_proc ENDP
 ; Inputs:
 ;  - SI: Pointer to the initial X position of the brick (column).
 ;  - DI: Pointer to the initial Y position of the brick (row).
+;  - AL: Color of the brick.
 ; Outputs:
 ;  - Draws a rectangular block of pixels at the specified position.
 ;---------------------------------------
@@ -79,22 +77,25 @@ DrawBricks_proc ENDP
 DrawBrick_proc PROC NEAR
    PUSH CX 
    PUSH DX
-   PUSH AX  
+   PUSH BX  
    MOV CX, [SI]                       ; set the column
    MOV DX, [DI]                       ; set the row
 
    draw_brick_horizontal:
    ; draw a pixel - 10 column, - 10 row, color: red
         MOV AH, 0CH
-        MOV AL, 48    ; green color
+      ;  MOV AL, 48    ; green color
         INT 10H 
 
         INC CX        ; increment the column
 
+
         ; CX - initial_x > brick_width => exit condition
-        MOV AX, CX                   ; use AX as auxillary reg
-        SUB AX, [SI]                   ; AX = CX - initial_x
-        CMP AX, brick_width          ; compare AX with brick_width 
+        MOV BX, CX                   ; use BX as auxillary reg
+        SUB BX, [SI]                   ; BX = CX - initial_x
+        CMP BX, brick_width          ; compare BX with brick_width 
+
+ 
         JNG draw_brick_horizontal    ; if AX < brick_width, continue the loop
 
         ; reset the column
@@ -102,12 +103,14 @@ DrawBrick_proc PROC NEAR
         INC DX                        ; increment the row
 
         ; DX - initial_y > brick_height => exit condition
-        MOV AX, DX                    ; use AX as auxillary reg
-        SUB AX, [DI]                    ; AX = DX - initial_y
-        CMP AX, brick_height          ; compare AX with brick_height
+
+        MOV BX, DX                    ; use BX as auxillary reg
+        SUB BX, [DI]                    ; BX = DX - initial_y
+        CMP BX, brick_height          ; compare BX with brick_height
+    
         JNG draw_brick_horizontal     ; if AX < brick_height, continue the loop
 
-        POP AX
+        POP BX
         POP DX
         POP CX
 RET
