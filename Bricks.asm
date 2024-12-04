@@ -51,6 +51,9 @@ MAIN ENDP
 
 
 DrawBrick_proc PROC NEAR
+   PUSH CX 
+   PUSH DX
+   PUSH AX  
    MOV CX, SI                      ; set the column
    MOV DX, DI                       ; set the row
 
@@ -77,6 +80,10 @@ DrawBrick_proc PROC NEAR
         SUB AX, DI                    ; AX = DX - initial_y
         CMP AX, brick_height          ; compare AX with brick_height
         JNG draw_brick_horizontal     ; if AX < brick_height, continue the loop
+
+        POP AX
+        POP DX
+        POP CX
 RET
 DrawBrick_proc ENDP
 
