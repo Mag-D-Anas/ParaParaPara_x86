@@ -103,7 +103,7 @@ DisplayString_proc ENDP
 DisplayColoredString_proc proc NEAR
     mov si, bx        
 push dx
-loop1:
+print_char_colored:
     lodsb             
     cmp al, '$'       
     je done         
@@ -115,7 +115,7 @@ loop1:
     mov cx, 1          
     int 10h            
     inc dl           
-    jmp loop1         
+    jmp print_char_colored         
 
 done:
 pop dx
