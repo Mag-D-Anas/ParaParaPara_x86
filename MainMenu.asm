@@ -7,6 +7,7 @@ text_main_menu_title db 'WELCOME TO BRICK BREAKER$'
 text_main_menu_select_options db 'PLEASE SELECT OPTIONS$'
 text_main_menu_play_game db 'PRESS ENTER TO PLAY GAME$'
 text_main_menu_instruction db 'PRESS I TO GO INTO INSTRUCTION BOX$'
+text_main_menu_chat db 'PRESS C TO CHAT $'
 
 
 
@@ -36,14 +37,14 @@ MAIN ENDP
 MainMenu_proc proc NEAR
 ;//////////
 mov dx,MAIN_MENU_POS
-lea bx,TEXT_MAIN_MENU_TITLE
+lea bx,text_main_menu_title
 call DisplayColoredString_proc
 inc dh
 inc dh
 ;/////////////
 call MoveCursor_proc
 push dx
-lea dx,TEXT_MAIN_MENU_SELECT_OPTIONS
+lea dx,text_main_menu_select_options
 call DisplayString_proc
 pop dx
 
@@ -52,7 +53,7 @@ inc dh
 
 call MoveCursor_proc
 push dx
-lea dx,TEXT_MAIN_MENU_PLAY_GAME
+lea dx,text_main_menu_play_game
 call DisplayString_proc
 pop dx
 
@@ -61,7 +62,18 @@ inc dh
 
 call MoveCursor_proc
 push dx
-lea dx,TEXT_MAIN_MENU_INSTRUCTION
+lea dx,text_main_menu_instruction
+call DisplayString_proc
+pop dx
+
+
+
+inc dh
+inc dh
+
+call MoveCursor_proc
+push dx
+lea dx,text_main_menu_chat
 call DisplayString_proc
 pop dx
 
@@ -73,6 +85,9 @@ cmp ah,17h
 je endLoop
 cmp ah,1Ch
 je endLoop
+cmp ah,2Eh
+je endLoop
+
 jmp loopTillPressed
 
 endLoop:
