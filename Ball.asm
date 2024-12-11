@@ -2,6 +2,8 @@
 ; DATE: 5 Dec 2024
 ; BALL logic procedure, with handling the collisions of the walls
 
+extrn DrawBricks_proc:FAR
+
 .model small
 .stack 100h
 
@@ -26,6 +28,8 @@
             mov      al, 13h                ; Chosen video mode
             INT      10h                    ; Execute interrupt
 
+          CALL    DrawBricks_proc        ; Draw the bricks
+
         BALL_LOOP:
             MOV      AH, 2Ch                ; Get the system time
             INT      21h                    ; CH = hours, CL = minutes, DH = seconds, DL = 1/100 seconds
@@ -36,7 +40,7 @@
             CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
             CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
 
-            MOV      AX, BALL_VELOCITY_X    ; edited X - Velocity
+            MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
             ADD      BALL_X, AX             ; move the initial X - position of the ball 
             MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
             ADD      BALL_Y, AX             ; move the initial Y - position of the ball
@@ -157,4 +161,4 @@
 
     CLEAR_BALL ENDP
 
-end
+end MAIN

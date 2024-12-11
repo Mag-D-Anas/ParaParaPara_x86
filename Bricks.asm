@@ -1,3 +1,6 @@
+public DrawBricks_proc
+
+
 .model small
 .stack 100h
 
@@ -13,23 +16,6 @@ COLUMN_COUNT EQU 8    ; number of columns
 brick_colors DB 3, 5, 9, 10
   
 .CODE
-MAIN PROC
-    MOV AX, @DATA
-    MOV DS, AX
-
-    ; set the video mode
-    MOV AH, 00H
-    MOV AL, 13H
-    INT 10H
-
-    CALL DrawBricks_proc
-
-
-    ; terminate the program
-    MOV AH, 4CH
-    INT 21H
-
-MAIN ENDP
 
 ;---------------------------------------
     ; Function: DrawBricks_proc
@@ -38,8 +24,9 @@ MAIN ENDP
     ; Outputs: Updates SI, DI to traverse the grid of bricks.
 ;---------------------------------------
 
-DrawBricks_proc PROC NEAR
-
+DrawBricks_proc PROC FAR
+   MOV AX, @DATA
+   MOV DS, AX
    PUSH BX
    MOV SI, offset brick_initial_x      ; set the column
    MOV DI, offset brick_initial_y      ; set the row
@@ -114,6 +101,6 @@ DrawBrick_proc PROC NEAR
 RET
 DrawBrick_proc ENDP
 
-END MAIN
+END DrawBricks_proc
 
 
