@@ -1,7 +1,6 @@
 public DrawBricks_proc
-; extrn BALL_X:DW
-; extrn BALL_Y:DW
-; extrn BALL_SIZE:DW
+public CheckCollision_proc
+
 
 .model small
 .stack 100h
@@ -19,6 +18,10 @@ COLUMN_COUNT EQU 8    ; number of columns
 
 state_of_bricks_row DB ROW_COUNT DUP(0)      ; 0 - brick is not hit, 1 - brick is hit
 state_of_bricks_col DB COLUMN_COUNT DUP(0)   ; 0 - brick is not hit, 1 - brick is hit
+
+extrn BALL_X:word
+extrn BALL_Y:word
+extrn BALL_SIZE:word
   
 .CODE
 
@@ -118,17 +121,19 @@ DrawBrick_proc ENDP
 ; - Calls DestroyBrick_proc if a collision is detected.
 ;---------------------------------------
 
-CheckCollision PROC FAR
+CheckCollision_proc PROC FAR
     PUSH BX
     PUSH AX
     PUSH CX
     PUSH DX
 
     MOV CL, 0                             ; row count   
-    MOV CH, 0                           ; column count                       
+    MOV CH, 0                             ; column count 
+    MOV SI, offset brick_initial_x        ; set the column
+    MOV DI, offset brick_initial_y        ; set the row                      
 
     row_loop:
-        MOV DX, brick_initial_y[CL]        ; set the row  
+        MOV DX, [DI]        ; set the row  
 
         ; check collision with the brick => y axis
         ; check top edge
@@ -144,7 +149,7 @@ CheckCollision PROC FAR
             JG next_row                 ; if the ball is below the brick, skip to the next brick
 
         column_loop:
-            MOV BX, brick_initial_x[CH]    ; set the column
+            MOV BX, [SI]                ; set the column
             
             ; check collision with the brick => x axis 
             ; check left edge
@@ -154,61 +159,57 @@ CheckCollision PROC FAR
                 JNG next_column              ; if the ball is to the left of the brick, skip to the next brick
 
             ; check right edge
-                ADDBX, brick_width          ; calculate the right edge of the brick
+                ADD BX, brick_width          ; calculate the right edge of the brick
                 SUB AX, BALL_SIZE           ; calculate the left edge of the ball
                 CMP AX, BX                  ; compare with the right edge of the brick
                 JG next_column               ; if the ball is to the right of the brick, skip to the next brick
 
             ; if we reach this point, the ball has collided with the brick
             ; set the state of the brick to 1
-            MOV state_of_bricks_row[CL], 1
-            MOV state_of_bricks_col[CH], 1
-            ; CALL DestroyBrick_proc
+            ; MOV state_of_bricks_row[CL], 1
+            ; MOV state_of_bricks_col[CH], 1
+           CALL DestroyBrick_proc
 
 
             next_column:
                 INC CH                      ; increment the column
                 CMP CH, COLUMN_COUNT        ; compare the column with the last brick
                 JE next_row                 ; if CH = 7, go to the next row
+                ADD SI, 2                   ; move to the next column
+                JMP column_loop             ; go to the next column
 
             next_row:
                 INC CL                      ; increment the row
                 CMP CL, ROW_COUNT           ; compare the row with the last brick
                 JE exit_collision           ; if CL = 3, exit the loop
                 MOV CH, 0                   ; reset the column
+                ADD DI, 2                   ; move to the next row
                 JMP row_loop                ; go to the next row
+
     exit_collision:
         POP DX
         POP CX
         POP AX
         POP BX
+RET
+CheckCollision_proc ENDP
 
 
+DestroyBrick_proc PROC NEAR
+    PUSH AX
+    ; set the color of the brick to black
+    ; draw the brick at the same position
+    MOV AL, 0
+    CALL DrawBrick_proc
+
+    POP AX
+RET
+DestroyBrick_proc ENDP
               
 
 
 
-   
 
-            
-
-                
-
-
-
-
-
-
-
-
-
-    
-
-
-
-    POP BX
-RET
-CheckCollision ENDP
 
 END DrawBricks_proc
 

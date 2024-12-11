@@ -13,7 +13,7 @@
         "-c",
         "TASM.EXE /m2 main.asm Bricks.asm Ball.asm",
         "-c",
-        "LINK.EXE main.obj  Ball.obj Bricks.obj;",
+        "LINK.EXE main.obj Bricks.obj Ball.obj ;",
         "-c",
         "main.exe",
         "-c",

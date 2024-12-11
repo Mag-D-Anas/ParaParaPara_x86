@@ -2,7 +2,7 @@
 ; DATE: 5 Dec 2024
 ; BALL logic procedure, with handling the collisions of the walls
 
-extrn DrawBricks_proc:FAR
+; extrn DrawBricks_proc:FAR
 ; extrn CheckCollision_proc:FAR
 
 public MOVE_BALL
@@ -10,9 +10,9 @@ public CLEAR_BALL
 public DRAW_BALL
 public UPDATE_POSITION
 
-; public BALL_X
-; public BALL_Y
-; public BALL_SIZE
+public BALL_X
+public BALL_Y
+public BALL_SIZE
 
 .model small
 .stack 100h
@@ -61,6 +61,35 @@ public UPDATE_POSITION
     ;         mov      ah, 4Ch
     ;         int      21h
     ; MAIN ENDP
+        CLEAR_BALL PROC FAR
+
+            ; Initial positions
+            MOV      CX, BALL_X           ; X - initial position
+            MOV      DX, BALL_Y           ; Y - initial position
+
+        CLEAR_COLUMN:
+            MOV      AH, 0Ch              ; {
+            MOV      AL, 00h              ;     Clearing pixel (black)
+            MOV      BH, 00h              ;      At (x = CX, y = DX) position
+            INT      10h                  ; }
+
+            INC      DX                   ; Counter for each row pixel (start of Y-index of the row till its size)     
+            MOV      AX, BALL_Y           ; Calculating Y-index of the pixel
+            ADD      AX, BALL_SIZE        ;    at the last row
+            CMP      DX, AX               ; Compare the curr row ( DX ) with the last row ( AX )
+            JNG      CLEAR_COLUMN         ; We didn't reach the last row ( AX ) ? => Repeat
+
+        SHIFTCOLUMN2:                     ; if we did, then
+            INC      CX                   ; increment our current column
+            MOV      DX, BALL_Y           ; reset our current row
+            MOV      AX, BALL_X           ; Calculating X-index of the pixel
+            ADD      AX, BALL_SIZE        ;    at the last column
+            CMP      CX, AX               ; Compare the curr column ( CX ) with the last column ( AX )
+            JNG      CLEAR_COLUMN         ; We didn't reach the last column ( AX ) ? => Keep drawing
+
+            RET
+
+    CLEAR_BALL ENDP
 
     UPDATE_POSITION PROC FAR
         MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
@@ -148,34 +177,6 @@ public UPDATE_POSITION
 
     DRAW_BALL ENDP
     
-    CLEAR_BALL PROC FAR
 
-            ; Initial positions
-            MOV      CX, BALL_X           ; X - initial position
-            MOV      DX, BALL_Y           ; Y - initial position
-
-        CLEAR_COLUMN:
-            MOV      AH, 0Ch              ; {
-            MOV      AL, 00h              ;     Clearing pixel (black)
-            MOV      BH, 00h              ;      At (x = CX, y = DX) position
-            INT      10h                  ; }
-
-            INC      DX                   ; Counter for each row pixel (start of Y-index of the row till its size)     
-            MOV      AX, BALL_Y           ; Calculating Y-index of the pixel
-            ADD      AX, BALL_SIZE        ;    at the last row
-            CMP      DX, AX               ; Compare the curr row ( DX ) with the last row ( AX )
-            JNG      CLEAR_COLUMN         ; We didn't reach the last row ( AX ) ? => Repeat
-
-        SHIFTCOLUMN2:                     ; if we did, then
-            INC      CX                   ; increment our current column
-            MOV      DX, BALL_Y           ; reset our current row
-            MOV      AX, BALL_X           ; Calculating X-index of the pixel
-            ADD      AX, BALL_SIZE        ;    at the last column
-            CMP      CX, AX               ; Compare the curr column ( CX ) with the last column ( AX )
-            JNG      CLEAR_COLUMN         ; We didn't reach the last column ( AX ) ? => Keep drawing
-
-            RET
-
-    CLEAR_BALL ENDP
 
 end MOVE_BALL
