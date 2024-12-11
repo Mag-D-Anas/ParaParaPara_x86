@@ -3,6 +3,10 @@
 ; BALL logic procedure, with handling the collisions of the walls
 
 extrn DrawBricks_proc:FAR
+public MOVE_BALL
+public CLEAR_BALL
+public DRAW_BALL
+public UPDATE_POSITION
 
 .model small
 .stack 100h
@@ -19,42 +23,49 @@ extrn DrawBricks_proc:FAR
             BALL_VELOCITY_Y DW      -2      ; positive -> go down // negative -> go up
 
 .code
-    MAIN PROC FAR
+    ; MAIN PROC FAR
 
-            mov      AX, @DATA
-            mov      DS, AX
+    ;         mov      AX, @DATA
+    ;         mov      DS, AX
 
-            mov      ah, 00h                ; Set the config to video mode
-            mov      al, 13h                ; Chosen video mode
-            INT      10h                    ; Execute interrupt
+    ;         mov      ah, 00h                ; Set the config to video mode
+    ;         mov      al, 13h                ; Chosen video mode
+    ;         INT      10h                    ; Execute interrupt
 
-          CALL    DrawBricks_proc        ; Draw the bricks
+    ;       CALL    DrawBricks_proc        ; Draw the bricks
 
-        BALL_LOOP:
-            MOV      AH, 2Ch                ; Get the system time
-            INT      21h                    ; CH = hours, CL = minutes, DH = seconds, DL = 1/100 seconds
-            CMP      PREV_MS, DL            ; Compare the curr ms with the previous one
-            JE       BALL_LOOP              ; if equal then hold the program 1ms 
-            MOV      PREV_MS, DL            ; Update time
+    ;     BALL_LOOP:
+    ;         MOV      AH, 2Ch                ; Get the system time
+    ;         INT      21h                    ; CH = hours, CL = minutes, DH = seconds, DL = 1/100 seconds
+    ;         CMP      PREV_MS, DL            ; Compare the curr ms with the previous one
+    ;         JE       BALL_LOOP              ; if equal then hold the program 1ms 
+    ;         MOV      PREV_MS, DL            ; Update timne
 
-            CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
-            CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
+    ;         CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
+    ;         CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
 
-            MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
-            ADD      BALL_X, AX             ; move the initial X - position of the ball 
-            MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
-            ADD      BALL_Y, AX             ; move the initial Y - position of the ball
-            CALL     DRAW_BALL              ; Draw the ball with moved ( X - Y ) initial position
-            JMP      BALL_LOOP              ; REPEAT TO INFINITY
+    ;         MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
+    ;         ADD      BALL_X, AX             ; move the initial X - position of the ball 
+    ;         MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
+    ;         ADD      BALL_Y, AX             ; move the initial Y - position of the ball
+    ;         CALL     DRAW_BALL              ; Draw the ball with moved ( X - Y ) initial position
+    ;         JMP      BALL_LOOP              ; REPEAT TO INFINITY
 
-        EXITPROG:      
-            mov      ah, 4Ch
-            int      21h
-    MAIN ENDP
+    ;     EXITPROG:      
+    ;         mov      ah, 4Ch
+    ;         int      21h
+    ; MAIN ENDP
 
+    UPDATE_POSITION PROC FAR
+        MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
+        ADD      BALL_X, AX             ; move the initial X - position of the ball 
+        MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
+        ADD      BALL_Y, AX             ; move the initial Y - position of the ball
+    UPDATE_POSITION ENDP
 
-
-    MOVE_BALL PROC NEAR
+    MOVE_BALL PROC FAR
+            MOV      AX, @DATA
+            MOV      DS, AX
             ; Left Wall
             MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             CMP      BALL_X, BX             ; comparing the curr X - position with the first column of the window
@@ -102,7 +113,7 @@ extrn DrawBricks_proc:FAR
 
 
 
-    DRAW_BALL PROC NEAR
+    DRAW_BALL PROC FAR
 
             MOV      CX, BALL_X            ; X - initial position
             MOV      DX, BALL_Y            ; Y - initial position
@@ -131,7 +142,7 @@ extrn DrawBricks_proc:FAR
 
     DRAW_BALL ENDP
     
-    CLEAR_BALL PROC NEAR
+    CLEAR_BALL PROC FAR
 
             ; Initial positions
             MOV      CX, BALL_X           ; X - initial position
@@ -161,4 +172,4 @@ extrn DrawBricks_proc:FAR
 
     CLEAR_BALL ENDP
 
-end MAIN
+end MOVE_BALL

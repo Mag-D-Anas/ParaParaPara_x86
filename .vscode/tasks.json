@@ -13,9 +13,9 @@
         "-c",
         "TASM.EXE Ball.asm",
         "-c",
-        "LINK.EXE Ball.obj Bricks.obj;",
+        "LINK.EXE main.obj Bricks.obj Ball.obj;",
         "-c",
-        "Ball.exe",
+        "main.exe",
         "-c",
         "exit"
       ],
