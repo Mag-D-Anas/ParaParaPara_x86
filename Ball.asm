@@ -3,10 +3,16 @@
 ; BALL logic procedure, with handling the collisions of the walls
 
 extrn DrawBricks_proc:FAR
+; extrn CheckCollision_proc:FAR
+
 public MOVE_BALL
 public CLEAR_BALL
 public DRAW_BALL
 public UPDATE_POSITION
+
+; public BALL_X
+; public BALL_Y
+; public BALL_SIZE
 
 .model small
 .stack 100h
