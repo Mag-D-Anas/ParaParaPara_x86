@@ -24,43 +24,11 @@ public BALL_SIZE
             PREV_MS         DB      0       ; neede for fps movements
             BALL_X          DW      0Ah     ; X position of the ball
             BALL_Y          DW      0Ah     ; Y position of the ball
-            BALL_SIZE       DW      0Ah     ; Size of the ball (pixels width and height)
+            BALL_SIZE       DW      03h     ; Size of the ball (pixels width and height)
             BALL_VELOCITY_X DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y DW      -2      ; positive -> go down // negative -> go up
 
 .code
-    ; MAIN PROC FAR
-
-    ;         mov      AX, @DATA
-    ;         mov      DS, AX
-
-    ;         mov      ah, 00h                ; Set the config to video mode
-    ;         mov      al, 13h                ; Chosen video mode
-    ;         INT      10h                    ; Execute interrupt
-
-    ;       CALL    DrawBricks_proc        ; Draw the bricks
-
-    ;     BALL_LOOP:
-    ;         MOV      AH, 2Ch                ; Get the system time
-    ;         INT      21h                    ; CH = hours, CL = minutes, DH = seconds, DL = 1/100 seconds
-    ;         CMP      PREV_MS, DL            ; Compare the curr ms with the previous one
-    ;         JE       BALL_LOOP              ; if equal then hold the program 1ms 
-    ;         MOV      PREV_MS, DL            ; Update timne
-
-    ;         CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
-    ;         CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
-
-    ;         MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
-    ;         ADD      BALL_X, AX             ; move the initial X - position of the ball 
-    ;         MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
-    ;         ADD      BALL_Y, AX             ; move the initial Y - position of the ball
-    ;         CALL     DRAW_BALL              ; Draw the ball with moved ( X - Y ) initial position
-    ;         JMP      BALL_LOOP              ; REPEAT TO INFINITY
-
-    ;     EXITPROG:      
-    ;         mov      ah, 4Ch
-    ;         int      21h
-    ; MAIN ENDP
         CLEAR_BALL PROC FAR
 
             ; Initial positions
