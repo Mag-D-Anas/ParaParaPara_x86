@@ -2,25 +2,32 @@
 ; DATE: 5 Dec 2024
 ; BALL logic procedure, with handling the collisions of the walls
 
-extrn DrawBricks_proc:FAR
+;extrn DrawBricks_proc:FAR
 public MOVE_BALL
 public CLEAR_BALL
 public DRAW_BALL
 public UPDATE_POSITION
+public INIT_BALL
+
+; import paddle parameters
+extrn paddleX:WORD
+extrn paddleY:WORD
+extrn paddleWidth:WORD
+extrn paddleHeight:WORD
 
 .model small
 .stack 100h
 
 .data
-            WINDOW_WIDTH    DW      140h    ; 320 pixels
-            WINDOW_HEIGHT   DW      0C8h    ; 200 pixels
+            WINDOW_WIDTH    DW      320     ; 320 pixels
+            WINDOW_HEIGHT   DW      200     ; 200 pixels
             WINDOW_BOUNDS   DW      4       ; pre check the walls
             PREV_MS         DB      0       ; neede for fps movements
-            BALL_X          DW      0Ah     ; X position of the ball
-            BALL_Y          DW      0Ah     ; Y position of the ball
+            BALL_X          DW      160     ; X position of the ball
+            BALL_Y          DW      100     ; Y position of the ball
             BALL_SIZE       DW      0Ah     ; Size of the ball (pixels width and height)
             BALL_VELOCITY_X DW      -5      ; velocity of incrementing the ball starting position
-            BALL_VELOCITY_Y DW      -2      ; positive -> go down // negative -> go up
+            BALL_VELOCITY_Y DW      4      ; positive -> go down // negative -> go up
 
 .code
     ; MAIN PROC FAR
@@ -56,16 +63,22 @@ public UPDATE_POSITION
     ;         int      21h
     ; MAIN ENDP
 
+    INIT_BALL PROC FAR
+            MOV      AX, @DATA
+            MOV      DS, AX
+            RET
+    INIT_BALL ENDP
+
     UPDATE_POSITION PROC FAR
         MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
         ADD      BALL_X, AX             ; move the initial X - position of the ball 
         MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
         ADD      BALL_Y, AX             ; move the initial Y - position of the ball
+        RET
     UPDATE_POSITION ENDP
 
     MOVE_BALL PROC FAR
-            MOV      AX, @DATA
-            MOV      DS, AX
+            
             ; Left Wall
             MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             CMP      BALL_X, BX             ; comparing the curr X - position with the first column of the window
@@ -91,18 +104,46 @@ public UPDATE_POSITION
             CMP      BALL_Y, AX             ; comparing the curr X - position with the last Row of the window
             JG       EXIT                   ; isHitted? You lose
 
+            ; Amr
+            ; Paddle
+            ; Check if the ball's x is less than the paddle's x + width
+            MOV      AX, paddleX            ; AX holds the start of the paddle
+            MOV      BX, paddleWidth 
+            ADD      BX, AX                 ; BX holds the end of the paddle
+            CMP      BALL_X, BX             ; comparing the curr X - position with the end of the paddle
+            JBE      CMP_PADDLE_START       ; within range? check the start of the paddle
+            JMP NEXT_CHECK              ; continue checking other collisions
+            
+            CMP_PADDLE_START: ; we know that x <= paddleX + paddleWidth
+            MOV      BX, BALL_X
+            ADD      BX, BALL_SIZE
+            CMP      BX, AX             ; comparing the curr X - position with the start of the paddle
+            JAE      CMP_PADDLE_Y           ; within range? check the Y - position of the paddle
+            JMP NEXT_CHECK              ; continue checking other collisions
+            
+            CMP_PADDLE_Y: ; we know that x <= paddleX + paddleWidth and x + BallWidth => paddleX
+            MOV      AX, paddleY            ; AX holds the start of the paddle
+            SUB      AX, BALL_SIZE          ; needed to check AX with the start of the ball and without it the ball go out of bound
+            CMP      BALL_Y, AX             ; comparing the curr Y - position with the start of the paddle
+            JE       NEG_VELOCITY_Y         ; bounce back
+            JA       NEG_VELOCITY_X         ; bro missed the paddle :( (hit the walls of the paddle, bounce and die peacefully)
+            JMP NEXT_CHECK              ; continue checking other collisions
+
+
+            NEXT_CHECK:
             RET
+
 
         EXIT:
             CALL     CLEAR_BALL             ; Clear the loser ball
-            MOV      BALL_VELOCITY_X, 05h   ; Reset X - velocity ( dump value )
-            MOV      BALL_VELOCITY_Y, 02h   ; Reset Y - velocity ( dump value )
-            MOV      BALL_X, 1Fh            ; Reset X - position ( dump value )
-            MOV      BALL_Y, 1Fh            ; Reset Y - position ( dump value )
+            MOV      BALL_VELOCITY_X, -5    ; Reset X - velocity ( dump value )
+            MOV      BALL_VELOCITY_Y, 4   ; Reset Y - velocity ( dump value )
+            MOV      BALL_X, 160            ; Reset X - position ( dump value )
+            MOV      BALL_Y, 100            ; Reset Y - position ( dump value )
             RET
 
         NEG_VELOCITY_X:
-            NEG      BALL_VELOCITY_X        ; positive -> go down // negative -> go up
+            NEG      BALL_VELOCITY_X        ; positive -> go right // negative -> go left
             RET
 
         NEG_VELOCITY_Y:
@@ -172,4 +213,4 @@ public UPDATE_POSITION
 
     CLEAR_BALL ENDP
 
-end MOVE_BALL
+end INIT_BALL
