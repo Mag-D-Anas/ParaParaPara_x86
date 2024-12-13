@@ -96,6 +96,7 @@ public BALL_SIZE
         ADD      BALL_X, AX             ; move the initial X - position of the ball 
         MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
         ADD      BALL_Y, AX             ; move the initial Y - position of the ball
+        RET
     UPDATE_POSITION ENDP
 
     MOVE_BALL PROC FAR
