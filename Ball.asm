@@ -9,6 +9,12 @@ public DRAW_BALL
 public UPDATE_POSITION
 public INIT_BALL
 
+; extrn to bricks
+public BALL_X
+public BALL_Y
+public BALL_SIZE
+
+
 ; import paddle parameters
 extrn paddleX:WORD
 extrn paddleY:WORD
@@ -30,38 +36,6 @@ extrn paddleHeight:WORD
             BALL_VELOCITY_Y DW      4      ; positive -> go down // negative -> go up
 
 .code
-    ; MAIN PROC FAR
-
-    ;         mov      AX, @DATA
-    ;         mov      DS, AX
-
-    ;         mov      ah, 00h                ; Set the config to video mode
-    ;         mov      al, 13h                ; Chosen video mode
-    ;         INT      10h                    ; Execute interrupt
-
-    ;       CALL    DrawBricks_proc        ; Draw the bricks
-
-    ;     BALL_LOOP:
-    ;         MOV      AH, 2Ch                ; Get the system time
-    ;         INT      21h                    ; CH = hours, CL = minutes, DH = seconds, DL = 1/100 seconds
-    ;         CMP      PREV_MS, DL            ; Compare the curr ms with the previous one
-    ;         JE       BALL_LOOP              ; if equal then hold the program 1ms 
-    ;         MOV      PREV_MS, DL            ; Update timne
-
-    ;         CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
-    ;         CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
-
-    ;         MOV      AX, BALL_VELOCITY_X    ; edited X - Vep/+locity
-    ;         ADD      BALL_X, AX             ; move the initial X - position of the ball 
-    ;         MOV      AX, BALL_VELOCITY_Y    ; edited Y - Velocity
-    ;         ADD      BALL_Y, AX             ; move the initial Y - position of the ball
-    ;         CALL     DRAW_BALL              ; Draw the ball with moved ( X - Y ) initial position
-    ;         JMP      BALL_LOOP              ; REPEAT TO INFINITY
-
-    ;     EXITPROG:      
-    ;         mov      ah, 4Ch
-    ;         int      21h
-    ; MAIN ENDP
 
     INIT_BALL PROC FAR
             MOV      AX, @DATA
@@ -76,6 +50,8 @@ extrn paddleHeight:WORD
         ADD      BALL_Y, AX             ; move the initial Y - position of the ball
         RET
     UPDATE_POSITION ENDP
+
+ 
 
     MOVE_BALL PROC FAR
             
@@ -182,9 +158,8 @@ extrn paddleHeight:WORD
             RET
 
     DRAW_BALL ENDP
-    
-    CLEAR_BALL PROC FAR
 
+     CLEAR_BALL PROC FAR
             ; Initial positions
             MOV      CX, BALL_X           ; X - initial position
             MOV      DX, BALL_Y           ; Y - initial position
@@ -212,5 +187,7 @@ extrn paddleHeight:WORD
             RET
 
     CLEAR_BALL ENDP
+    
+
 
 end INIT_BALL

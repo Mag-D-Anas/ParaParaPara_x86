@@ -1,20 +1,24 @@
 extrn DrawBricks_proc:FAR
+extrn CheckCollision_proc:FAR
+
 extrn MOVE_BALL:FAR
 extrn CLEAR_BALL:FAR
 extrn UPDATE_POSITION:FAR
 extrn DRAW_BALL:FAR
 extrn INIT_BALL:FAR
+
 ; Paddle
 extrn CheckInput:FAR
 extrn ClearPaddle:FAR
 extrn DrawPaddle:FAR
 extrn InitPaddle:FAR
 
+
 .model small
 .stack 100h
 
 .data
-      PREV_MS         DB      0       ; neede for fps movements
+      PREV_MS         DB      0       ; needed for fps movements
 .code
   MAIN PROC FAR
       mov AX, @DATA
@@ -40,6 +44,7 @@ extrn InitPaddle:FAR
             
             CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
             CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
+            CALL     CheckCollision_proc    ; check bricks collision
             CALL     UPDATE_POSITION        ; update position of the ball
             CALL     DRAW_BALL              ; Draw the ball with moved ( X - Y ) initial position
 
