@@ -16,16 +16,21 @@ public paddleHeight
 .STACK 100h
 
 .DATA
-paddleX DW 150       ; Initial X position of the paddle
+paddleX DW 70       ; Initial X position of the paddle
 paddleY DW 180       ; Y position of the paddle
-prevPaddleX DW 150   ; Previous X position of the paddle
+prevPaddleX DW ?   ; Previous X position of the paddle
 paddleWidth DW 40    ; Width of the paddle
-paddleHeight DW 10   ; Height of the paddle
-screenWidth DW 320   ; Screen width in pixels
-screenHeight DW 200  ; Screen height in pixels
+paddleHeight DW 7   ; Height of the paddle
+
+
+screenHeight EQU 200  ; Screen height in pixels
+leftWall EQU 0        ; Left wall position
+rightWall EQU 160     ; Right wall position
+
+
 paddleSpeed DW 5    ; Speed of the paddle (pixels/move)
-color DB 15          ; Paddle color (white in mode 13h)
-bgColor DB 0         ; Background color (black in mode 13h)
+paddleColor DB 15          ; Paddle color (white in mode 13h)
+paddleBgColor DB 0         ; Background color (black in mode 13h)
 
 .CODE
 ; MAIN PROC FAR
@@ -60,6 +65,8 @@ InitPaddle PROC FAR
     mov bx, paddleHeight
     sub ax, bx
     mov paddleY, ax
+    mov ax, paddleX
+    mov prevPaddleX, ax
     RET
 InitPaddle ENDP
 ; Subroutine to check keyboard input
@@ -87,9 +94,9 @@ MoveLeft:
 
     ; Check if it hits the left wall
     MOV AX, paddleX
-    CMP AX, 0
+    CMP AX, leftWall
     JGE NoKey
-    MOV paddleX, 0
+    MOV paddleX, leftWall
     RET
 
 MoveRight:
@@ -101,9 +108,9 @@ MoveRight:
     ; Check if it hits the right wall
     MOV AX, paddleX
     ADD AX, paddleWidth
-    CMP AX, screenWidth
+    CMP AX, rightWall
     JL NoKey
-    mov bx, screenWidth
+    mov bx, rightWall
     sub bx, paddleWidth
     MOV paddleX, bx
     RET
@@ -131,7 +138,7 @@ ClearPaddle PROC FAR
         mov dx, paddleY
         mov di, paddleHeight
         add di, paddleY
-        mov al, bgColor
+        mov al, paddleBgColor
         call DrawRectangle
     NoClear:
     mov ax, paddleX
@@ -150,7 +157,7 @@ DrawPaddle PROC FAR
     ADD SI, paddleX ; END X POS
     ADD DI, paddleY ; END Y POS
 
-    MOV AL, color      ; Paddle color
+    MOV AL, paddleColor      ; Paddle color
     CALL DrawRectangle
     RET
 DrawPaddle ENDP

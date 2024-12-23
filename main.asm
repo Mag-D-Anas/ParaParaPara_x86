@@ -12,6 +12,11 @@ extrn CheckInput:FAR
 extrn ClearPaddle:FAR
 extrn DrawPaddle:FAR
 extrn InitPaddle:FAR
+; Second paddle
+extrn CheckInput2:FAR
+extrn ClearPaddle2:FAR
+extrn DrawPaddle2:FAR
+extrn InitPaddle2:FAR
 
 
 .model small
@@ -29,13 +34,20 @@ extrn InitPaddle:FAR
       INT      10h                    ; Execute interrupt
 
       CALL     InitPaddle              ; Initialize the paddle position
+      CALL     InitPaddle2             ; Initialize the paddle position
       CALL     DrawBricks_proc        ; Draw the bricks
       CALL     INIT_BALL
 
       time_loop:
+            ; Paddle 1
             CALL     CheckInput   ; Check for user input
             CALL     ClearPaddle  ; Erase the old paddle
             CALL     DrawPaddle   ; Draw the new paddle
+            ; Paddle 2
+            ;CALL     CheckInput2   ; Check for user input
+            ;CALL     ClearPaddle2  ; Erase the old paddle
+            ;CALL     DrawPaddle2   ; Draw the new paddle
+
             MOV      AH, 2Ch                ; Get the system time
             INT      21h                    ; CH = hours, CL = minutes, DH = seconds, DL = 1/100 seconds
             CMP      PREV_MS, DL            ; Compare the curr ms with the previous one
