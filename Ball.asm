@@ -54,8 +54,7 @@ extrn paddleHeight:WORD
 
  
 
-    MOVE_BALL PROC FAR
-            
+    MOVE_BALL PROC FAR    
             ; Left Wall
             MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             CMP      BALL_X, BX             ; comparing the curr X - position with the first column of the window
