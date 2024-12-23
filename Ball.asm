@@ -13,7 +13,8 @@ public INIT_BALL
 public BALL_X
 public BALL_Y
 public BALL_SIZE
-
+public BALL_VELOCITY_X
+public BALL_VELOCITY_Y
 
 ; import paddle parameters
 extrn paddleX:WORD
@@ -53,8 +54,7 @@ extrn paddleHeight:WORD
 
  
 
-    MOVE_BALL PROC FAR
-            
+    MOVE_BALL PROC FAR    
             ; Left Wall
             MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             CMP      BALL_X, BX             ; comparing the curr X - position with the first column of the window
