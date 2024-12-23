@@ -13,7 +13,8 @@ public INIT_BALL
 public BALL_X
 public BALL_Y
 public BALL_SIZE
-
+public BALL_VELOCITY_X
+public BALL_VELOCITY_Y
 
 ; import paddle parameters
 extrn paddleX:WORD

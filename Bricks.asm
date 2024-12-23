@@ -22,6 +22,8 @@ state_of_bricks_col DB COLUMN_COUNT DUP(0)   ; 0 - brick is not hit, 1 - brick i
 extrn BALL_X:word
 extrn BALL_Y:word
 extrn BALL_SIZE:word
+extrn BALL_VELOCITY_X:word
+extrn BALL_VELOCITY_Y:word
   
 .CODE
 
@@ -148,6 +150,11 @@ CheckCollision_proc PROC FAR
             CMP AX, DX                  ; compare with the bottom edge of the brick
             JG next_row                 ; if the ball is below the brick, skip to the next brick
 
+            MOV BL, CH
+            MOV BH, 0
+            CMP state_of_bricks_col[BX], 1
+            JE next_column
+
         column_loop:
             MOV BX, [SI]                ; set the column
             
@@ -156,18 +163,31 @@ CheckCollision_proc PROC FAR
                 MOV AX, BALL_X 
                 ADD AX, BALL_SIZE           ; calculate the right edge of the ball
                 CMP AX, BX                  ; compare with the left edge of the brick => if BX = AX bounce left
-                JNG next_column              ; if the ball is to the left of the brick, skip to the next brick
+                JNG next_column             ; if the ball is to the left of the brick, skip to the next brick
 
             ; check right edge
-                ADD BX, brick_width          ; calculate the right edge of the brick
+                ADD BX, brick_width         ; calculate the right edge of the brick
                 SUB AX, BALL_SIZE           ; calculate the left edge of the ball
                 CMP AX, BX                  ; compare with the right edge of the brick
-                JG next_column               ; if the ball is to the right of the brick, skip to the next brick
+                JG next_column              ; if the ball is to the right of the brick, skip to the next brick
 
+
+
+            MOV BL, CL
+            MOV BH, 0
+            CMP state_of_bricks_row[BX], 1
+            JE next_row
+
+                NEG BALL_VELOCITY_Y
             ; if we reach this point, the ball has collided with the brick
             ; set the state of the brick to 1
-            ; MOV state_of_bricks_row[CL], 1
-            ; MOV state_of_bricks_col[CH], 1
+            CONT:
+              MOV Bl, CL
+              MOV BH, 0
+              MOV state_of_bricks_row[BX], 1
+              MOV BL, CH
+              MOV BH, 0
+              MOV state_of_bricks_col[BX], 1
            CALL DestroyBrick_proc
 
 
