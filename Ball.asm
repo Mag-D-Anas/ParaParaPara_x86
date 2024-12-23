@@ -32,7 +32,7 @@ extrn paddleHeight:WORD
             PREV_MS         DB      0       ; neede for fps movements
             BALL_X          DW      160     ; X position of the ball
             BALL_Y          DW      100     ; Y position of the ball
-            BALL_SIZE       DW      0Ah     ; Size of the ball (pixels width and height)
+            BALL_SIZE       DW      7     ; Size of the ball (pixels width and height)
             BALL_VELOCITY_X DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y DW      4      ; positive -> go down // negative -> go up
 
@@ -58,7 +58,7 @@ extrn paddleHeight:WORD
             ; Left Wall
             MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             CMP      BALL_X, BX             ; comparing the curr X - position with the first column of the window
-            JL       NEG_VELOCITY_X         ; isHitted? change the direction of X - velocity
+            JB       NEG_VELOCITY_X         ; isHitted? change the direction of X - velocity
 
             ; Right Wall
             MOV      AX, WINDOW_WIDTH       ; AX holds the last column of the window
@@ -66,19 +66,19 @@ extrn paddleHeight:WORD
             SUB      AX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             SUB      AX, WINDOW_BOUNDS      ; one not enough ( I do not know why, but it works XD)
             CMP      BALL_X, AX             ; comparing the curr X - position with the last column of the window
-            JG       NEG_VELOCITY_X         ; isHitted? change the direction of X - velocity
+            JA       NEG_VELOCITY_X         ; isHitted? change the direction of X - velocity
         
             ; Ceil
             MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             CMP      BALL_Y, BX             ; comparing the curr Y - position with the first row of the window
-            JL       NEG_VELOCITY_Y         ; isHitted? change the direction of Y - velocity
+            JB       NEG_VELOCITY_Y         ; isHitted? change the direction of Y - velocity
 
             ; Floor
             MOV      AX, WINDOW_HEIGHT      ; AX holds the last Row of the window
             SUB      AX, BALL_SIZE          ; needed to check AX with the start of the ball and without it the ball go out of bound
             SUB      AX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
             CMP      BALL_Y, AX             ; comparing the curr X - position with the last Row of the window
-            JG       EXIT                   ; isHitted? You lose
+            JA       EXIT                   ; isHitted? You lose
 
             ; Amr
             ; Paddle
@@ -87,24 +87,39 @@ extrn paddleHeight:WORD
             MOV      BX, paddleWidth 
             ADD      BX, AX                 ; BX holds the end of the paddle
             CMP      BALL_X, BX             ; comparing the curr X - position with the end of the paddle
-            JBE      CMP_PADDLE_START       ; within range? check the start of the paddle
+            JB      CMP_PADDLE_START       ; within range? check the start of the paddle
+            JE     CHECK_PADDLE_WALLS         ; bounce back
             JMP NEXT_CHECK              ; continue checking other collisions
             
             CMP_PADDLE_START: ; we know that x <= paddleX + paddleWidth
             MOV      BX, BALL_X
             ADD      BX, BALL_SIZE
             CMP      BX, AX             ; comparing the curr X - position with the start of the paddle
-            JAE      CMP_PADDLE_Y           ; within range? check the Y - position of the paddle
+            JA      CMP_PADDLE_Y           ; within range? check the Y - position of the paddle
+            JE      CHECK_PADDLE_WALLS         ; bounce back
             JMP NEXT_CHECK              ; continue checking other collisions
             
             CMP_PADDLE_Y: ; we know that x <= paddleX + paddleWidth and x + BallWidth => paddleX
             MOV      AX, paddleY            ; AX holds the start of the paddle
             SUB      AX, BALL_SIZE          ; needed to check AX with the start of the ball and without it the ball go out of bound
             CMP      BALL_Y, AX             ; comparing the curr Y - position with the start of the paddle
-            JE       NEG_VELOCITY_Y         ; bounce back
-            JA       NEG_VELOCITY_X         ; bro missed the paddle :( (hit the walls of the paddle, bounce and die peacefully)
+            JAE       NEG_VELOCITY_Y         ; bounce back
             JMP NEXT_CHECK              ; continue checking other collisions
 
+            CHECK_PADDLE_WALLS:
+            MOV      AX, paddleY            ; AX holds the start of the paddle
+            SUB      AX, BALL_SIZE          ; needed to check AX with the start of the ball and without it the ball go out of bound
+            CMP      BALL_Y, AX             ; comparing the curr Y - position with the start of the paddle
+            JA       NEG_VELOCITY_X
+            JMP      NEXT_CHECK
+            
+            NEG_VELOCITY_X:
+            NEG      BALL_VELOCITY_X        ; positive -> go right // negative -> go left
+            RET
+
+            NEG_VELOCITY_Y:
+            NEG      BALL_VELOCITY_Y        ; positive -> go down // negative -> go up
+            RET
 
             NEXT_CHECK:
             RET
@@ -116,14 +131,6 @@ extrn paddleHeight:WORD
             MOV      BALL_VELOCITY_Y, 4   ; Reset Y - velocity ( dump value )
             MOV      BALL_X, 160            ; Reset X - position ( dump value )
             MOV      BALL_Y, 100            ; Reset Y - position ( dump value )
-            RET
-
-        NEG_VELOCITY_X:
-            NEG      BALL_VELOCITY_X        ; positive -> go right // negative -> go left
-            RET
-
-        NEG_VELOCITY_Y:
-            NEG      BALL_VELOCITY_Y        ; positive -> go down // negative -> go up
             RET
 
     MOVE_BALL ENDP
@@ -145,7 +152,7 @@ extrn paddleHeight:WORD
             MOV      AX, BALL_Y            ; Calculating Y-index of the pixel
             ADD      AX, BALL_SIZE         ;    at the last row
             CMP      DX, AX                ; Compare the curr row ( DX ) with the last row ( AX )
-            JNG      DRAW_COLUMN           ; We didn't reach the last row ( AX ) ? => Repeat
+            JNA      DRAW_COLUMN           ; We didn't reach the last row ( AX ) ? => Repeat
 
         SHIFTCOLUMN1:                      ; if we did, then
             INC      CX                    ; increment our current column
@@ -153,7 +160,7 @@ extrn paddleHeight:WORD
             MOV      AX, BALL_X            ; Calculating X-index of the pixel
             ADD      AX, BALL_SIZE         ;    at the last column
             CMP      CX, AX                ; Compare the curr column ( CX ) with the last column ( AX )
-            JNG      DRAW_COLUMN           ; We didn't reach the last column ( AX ) ? => Keep drawing
+            JNA      DRAW_COLUMN           ; We didn't reach the last column ( AX ) ? => Keep drawing
 
             RET
 
@@ -174,7 +181,7 @@ extrn paddleHeight:WORD
             MOV      AX, BALL_Y           ; Calculating Y-index of the pixel
             ADD      AX, BALL_SIZE        ;    at the last row
             CMP      DX, AX               ; Compare the curr row ( DX ) with the last row ( AX )
-            JNG      CLEAR_COLUMN         ; We didn't reach the last row ( AX ) ? => Repeat
+            JNA      CLEAR_COLUMN         ; We didn't reach the last row ( AX ) ? => Repeat
 
         SHIFTCOLUMN2:                     ; if we did, then
             INC      CX                   ; increment our current column
@@ -182,7 +189,7 @@ extrn paddleHeight:WORD
             MOV      AX, BALL_X           ; Calculating X-index of the pixel
             ADD      AX, BALL_SIZE        ;    at the last column
             CMP      CX, AX               ; Compare the curr column ( CX ) with the last column ( AX )
-            JNG      CLEAR_COLUMN         ; We didn't reach the last column ( AX ) ? => Keep drawing
+            JNA      CLEAR_COLUMN         ; We didn't reach the last column ( AX ) ? => Keep drawing
 
             RET
 
