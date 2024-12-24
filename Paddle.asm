@@ -8,6 +8,7 @@ public DrawPaddle
 public InitPaddle
 ; export paddle position and size
 public paddleX
+public prevPaddleX
 public paddleY
 public paddleWidth
 public paddleHeight
@@ -19,13 +20,13 @@ public paddleHeight
 paddleX DW 70       ; Initial X position of the paddle
 paddleY DW 180       ; Y position of the paddle
 prevPaddleX DW ?   ; Previous X position of the paddle
-paddleWidth DW 40    ; Width of the paddle
-paddleHeight DW 7   ; Height of the paddle
+paddleWidth DW 30    ; Width of the paddle
+paddleHeight DW 5   ; Height of the paddle
 
 
 screenHeight EQU 200  ; Screen height in pixels
 leftWall EQU 0        ; Left wall position
-rightWall EQU 160     ; Right wall position
+rightWall EQU 158     ; Right wall position
 
 
 paddleSpeed DW 5    ; Speed of the paddle (pixels/move)
