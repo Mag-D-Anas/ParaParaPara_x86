@@ -1,3 +1,7 @@
+
+extrn GAME:FAR
+extrn CHAT:FAR
+
 .MODEL SMALL
 .STACK 64
 .DATA
@@ -7,26 +11,48 @@
     text_main_menu_play_game db 'PRESS ENTER TO PLAY GAME$'
     text_main_menu_instruction db 'PRESS I TO GO INTO INSTRUCTION BOX$'
     text_main_menu_chat db 'PRESS C TO CHAT $'
+    text_main_menu_exit db 'PRESS esc TO EXIT $'
     
     MAIN_MENU_POS equ 0505h
 
+    key_pressed db 0
 .CODE
-MAIN PROC
+MENU PROC
     mov ax,@DATA
     mov ds,ax
     xor ax,ax
+start:
 
-    mov ah, 0              
+ mov ah, 0              
     mov al, 13              
     int 10h 
 
+   
     call MainMenu_proc
-    call ClearScreen_proc
+    call GetKey_proc
 
-    ; terminate the program
-    mov AH, 4CH
-    int 21H
-MAIN ENDP
+    cmp key_pressed, 01h  ; Esc key
+    je endMenu
+
+    cmp key_pressed, 1Ch  ; Check if Enter key is pressed
+    je callGame
+
+    cmp key_pressed, 2Eh  ; Check if 'C' key is pressed
+    je callChat
+
+    callGame:
+        call GAME
+        jmp start
+
+    callChat:
+        call CHAT
+        jmp start
+
+    endMenu:
+      mov      ah, 4Ch
+    int      21h
+MENU ENDP
+
 
 MainMenu_proc proc NEAR
 
@@ -72,22 +98,21 @@ MainMenu_proc proc NEAR
     call DisplayString_proc
     pop dx
 
-loopTillPressed:
-    mov ah,0
-    int 16h
-    
-    cmp ah,17h   ; 'I' key
-    je pressed
-    cmp ah,1Ch   ; Enter key
-    je pressed
-    cmp ah,2Eh   ; 'C' key
-    je pressed
-    
-    jmp loopTillPressed
 
-pressed:
-    ret
+
+     inc dh
+    inc dh
+
+    call MoveCursor_proc
+    push dx
+    lea dx,text_main_menu_exit
+    call DisplayString_proc
+    pop dx
+
+
+    ret                  ; Return from the routine (optional)
 MainMenu_proc ENDP
+
 
 ClearScreen_proc proc NEAR
     mov ax,0600h    ; Scroll window up function
@@ -134,4 +159,27 @@ MoveCursor_proc proc NEAR
     RET
 MoveCursor_proc ENDP
 
-END MAIN
+
+ GetKey_proc proc NEAR
+loopTillPressed:
+    mov ah, 0          ; Function 0: Get keyboard input
+    int 16h            ; BIOS interrupt for keyboard input
+
+    cmp ah, 17h        ; Check if 'I' key scan code
+    je storeKey
+    cmp ah, 1Ch        ; Check if Enter key scan code
+    je storeKey
+    cmp ah, 2Eh        ; Check if 'C' key scan code
+    je storeKey
+    cmp ah, 01h        ; Check if Escape key scan code
+    je storeKey
+
+    jmp loopTillPressed ; Continue looping if no match
+
+storeKey:
+    mov key_pressed, ah ; Store the scan code in key_pressed
+    ; Add additional logic here if necessary
+    RET
+GetKey_proc ENDP
+
+END MENU

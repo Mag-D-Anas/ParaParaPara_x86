@@ -1,3 +1,5 @@
+PUBLIC GAME
+
 ; Bricks 1
 extrn DrawBricks_proc:FAR
 extrn CheckCollision_proc:FAR
@@ -46,7 +48,7 @@ extrn RecCom:FAR
       vertical_line_height DW 200
       vertical_line_width  DW 1
 .code
-  MAIN PROC FAR
+  GAME PROC FAR
       mov AX, @DATA
       mov DS, AX
   
@@ -97,7 +99,7 @@ extrn RecCom:FAR
     EXITPROG:      
             mov      ah, 4Ch
             int      21h
-    MAIN ENDP
+    GAME ENDP
 
     DrawVerticalLine_proc PROC
     PUSH DX
@@ -130,4 +132,4 @@ extrn RecCom:FAR
 RET
 DrawVerticalLine_proc ENDP
 
-    END MAIN
+    END GAME

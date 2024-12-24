@@ -1,3 +1,4 @@
+public CHAT
 ClearUpperScreen MACRO
     mov ax,060Dh
     mov bh,07h
@@ -56,7 +57,7 @@ YposR DB 0Dh
 
 .code
 
-Main proc
+Chat proc
     mov ax, @data
     mov ds, ax
 
@@ -238,9 +239,7 @@ Main proc
    detect endp
 
 exit:
-    mov ah, 4ch
-    int 21h 
-
-Main endp
-end
+ret
+Chat endp
+end Chat
 
