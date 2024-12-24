@@ -88,6 +88,22 @@ NoKey:
     RET
 
 MoveLeft:
+        ;send LEFT 'l'
+        push ax
+        push dx
+        waitLeft:
+        mov dx , 3FDH		; Line Status Register
+        In al , dx 			;Read Line Status
+        AND al , 00100000b
+        JZ waitLeft
+        
+        mov dx , 3F8H		; Transmit data register
+        mov al, 'l'
+        out dx , al
+        pop dx
+        pop ax
+        ;///////////////////////////
+
     mov ax, paddleX
     mov prevPaddleX, ax ; Save the previous X position
     mov ax, paddleSpeed
@@ -101,6 +117,24 @@ MoveLeft:
     RET
 
 MoveRight:
+
+      ;send right 'r'
+        push ax
+        push dx
+        waitRight:
+        mov dx , 3FDH		; Line Status Register
+        In al , dx 			;Read Line Status
+        AND al , 00100000b
+        JZ waitRight
+        
+        mov dx , 3F8H		; Transmit data register
+        mov al, 'r'
+        out dx , al
+        pop dx
+        pop ax
+        ;///////////////////////////    
+
+
     mov ax, paddleX
     mov prevPaddleX, ax ; Save the previous X position
     mov ax, paddleSpeed

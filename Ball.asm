@@ -26,7 +26,7 @@ extrn paddleHeight:WORD
 .stack 100h
 
 .data
-            WINDOW_WIDTH    DW      156     ; 320 pixels
+            WINDOW_WIDTH    DW      160     ; 320 pixels
             WINDOW_HEIGHT   DW      200     ; 200 pixels
             WINDOW_BOUNDS   DW      2       ; pre check the walls
             BALL_X          DW      70     ; X position of the ball

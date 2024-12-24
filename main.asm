@@ -16,6 +16,9 @@ extrn DRAW_BALL:FAR
 extrn INIT_BALL:FAR
 
 ; Ball 2
+extrn MOVE_BALL2:FAR
+extrn UPDATE_POSITION2:FAR
+
 extrn CLEAR_BALL_REC:FAR
 extrn DRAW_BALL_REC:FAR
 extrn INIT_BALL_REC:FAR
@@ -27,14 +30,16 @@ extrn DrawPaddle:FAR
 extrn InitPaddle:FAR
 ; ; Second paddle
 ; extrn CheckInput2:FAR
+extrn CheckInput2:FAR
+
 extrn ClearPaddle2:FAR
 extrn DrawPaddle2:FAR
 extrn InitPaddle2:FAR
 
 ; Communication
 extrn COM_INIT:FAR
-extrn SendCom:FAR
-extrn RecCom:FAR
+; extrn SendCom:FAR
+; extrn RecCom:FAR
 extrn SendStartFlag:FAR
 extrn WaitForRec:FAR
 
@@ -74,12 +79,12 @@ extrn WaitForRec:FAR
             CALL     DrawVerticalLine_proc
             ; Paddle 1
             CALL     CheckInput   ; Check for user input
-            CALL     ClearPaddle2  ; Erase the old paddle
+            CALL     CheckInput2   ; Check for user input
+
             CALL     ClearPaddle  ; Erase the old paddle
+            CALL     ClearPaddle2  ; Erase the old paddle
             CALL     DrawPaddle   ; Draw the new paddle
-            ; Paddle 2
-            ; CALL     CheckInput2   ; Check for user input
-              
+            ; Paddle 2              
             CALL     DrawPaddle2   ; Draw the new paddle
 
 
@@ -94,18 +99,22 @@ extrn WaitForRec:FAR
             ; AND al , 1
             ; JNZ rec_first
             ;CALL SendStartFlag
-            CALL     SendCom
-            CALL     RecCom
+            ; CALL     SendCom
+            ; CALL     RecCom
             ;rec_first:
 
             CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
+            CALL     MOVE_BALL2              ; check Collisions (for now, the walls only)
+
             CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
             CALL     CLEAR_BALL_REC
             CALL     CheckCollision_proc    ; check bricks collision
             CALL     CheckCollision_proc2   ; check bricks collision
             CALL     UPDATE_POSITION        ; update position of the ball
-            CALL     DRAW_BALL_REC
+            CALL     UPDATE_POSITION2        ; update position of the ball
+
             CALL     DRAW_BALL              ; Draw the ball with moved ( X - Y ) initial position
+            CALL     DRAW_BALL_REC
 
 
             JMP      time_loop              ; REPEAT TO INFINITY

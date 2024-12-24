@@ -10,7 +10,7 @@ fullresolution=640x400
 windowresolution=640x400
 output=openglpp
 [autoexec]
-mount C E:\\ParaParaPara_x86
+mount C D:\\LLLL\\ParaParaPara_x86
 C:
 tasm /m2 *.asm
 link Menu.obj main.obj Ball2.obj Ball.obj Bricks.obj Bricks2.obj Paddle.obj Paddle2.obj Multi.obj send.obj ;
