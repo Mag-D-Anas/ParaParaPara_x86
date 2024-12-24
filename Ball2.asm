@@ -37,6 +37,8 @@ extrn paddleHeight2:WORD
             BALL_VELOCITY_Y2 DW      4      ; positive -> go down // negative -> go up
             CEIL            DW      4      ; top wall
 
+            
+
 .code
 
     INIT_BALL_REC PROC FAR

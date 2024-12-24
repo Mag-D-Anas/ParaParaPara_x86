@@ -16,6 +16,8 @@ public BALL_SIZE
 public BALL_VELOCITY_X
 public BALL_VELOCITY_Y
 
+public first_player_lives
+
 ; import paddle parameters
 extrn paddleX:WORD
 extrn paddleY:WORD
@@ -37,11 +39,17 @@ extrn paddleHeight:WORD
             BALL_VELOCITY_X DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y DW      4      ; positive -> go down // negative -> go up
 
+            ; LIVES INFO
+            LIVES_LABEL         DB      'LIVES: ', '$'
+            first_player_lives  DB      3      ; number of lives for player 1
+            LIVES_STRING        DB      '3', '$'
 .code
 
     INIT_BALL PROC FAR
             MOV      AX, @DATA
             MOV      DS, AX
+
+            CALL DISPLAY_LIVES
             RET
     INIT_BALL ENDP
 
@@ -155,6 +163,12 @@ CLEAR_BALL PROC FAR
 
 
         EXIT:
+            DEC      first_player_lives
+            CALL     DISPLAY_LIVES          ; Display the remaining lives 
+            CMP      first_player_lives, 0
+            JNE      RESET_BALL             ; If the player still has lives, then reset the ball
+
+        RESET_BALL:
             CALL     CLEAR_BALL             ; Clear the loser ball
             MOV      BALL_VELOCITY_X, -5    ; Reset X - velocity ( dump value )
             MOV      BALL_VELOCITY_Y, 4   ; Reset Y - velocity ( dump value )
@@ -163,6 +177,7 @@ CLEAR_BALL PROC FAR
             RET
 
     MOVE_BALL ENDP
+
 
 
 

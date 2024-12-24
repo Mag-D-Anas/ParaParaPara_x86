@@ -16,9 +16,13 @@ brick_colors DB 3, 5, 9, 10
 ROW_COUNT EQU 4       ; number of rows
 COLUMN_COUNT EQU 8    ; number of columns
 
-; state_of_bricks_row DB ROW_COUNT DUP(0)      ; 0 - brick is not hit, 1 - brick is hit
-; state_of_bricks_col DB COLUMN_COUNT DUP(0)   ; 0 - brick is not hit, 1 - brick is hit
 state_of_bricks DB ROW_COUNT * COLUMN_COUNT DUP(0)
+
+; SCORE INFO
+score_1 DW 0
+score_label DB 'Score: ',  '$'
+score_string DB '0', "$"
+
 
 extrn BALL_X:word
 extrn BALL_Y:word
@@ -42,6 +46,9 @@ DrawBricks_proc PROC FAR
    MOV SI, offset brick_initial_x      ; set the column
    MOV DI, offset brick_initial_y      ; set the row
    MOV BX, 0
+
+   MOV CL, 5
+   CALL DisplayScore_proc
 
    draw_bricks:
     MOV AL, brick_colors[BX]           ; set the color of the brick
@@ -202,8 +209,10 @@ CheckCollision_proc PROC FAR
 
         ; set the state of the brick to 1 and destroy the brick
          destroy:
+            CALL DisplayScore_proc     ; display the score
             MOV state_of_bricks[BX], 1
             CALL DestroyBrick_proc
+            JMP exit_collision
 
 
             next_column:
@@ -241,7 +250,92 @@ DestroyBrick_proc PROC NEAR
 RET
 DestroyBrick_proc ENDP
               
+DisplayScore_proc PROC NEAR 
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH DI
 
+;  SCORE HANDLINNG
+    CMP CL, 0
+    JE score_increment_4
+    CMP CL, 1
+    JE score_increment_3
+    CMP CL, 2
+    JE score_increment_2
+    CMP CL, 3
+    JE score_increment_1
+    JMP print
+
+    score_increment_1:
+        ADD score_1, 1
+        JMP print
+    score_increment_2:
+        ADD score_1, 2
+        JMP print   
+    score_increment_3:
+        ADD score_1, 3
+        JMP print
+    score_increment_4:
+        ADD score_1, 4
+
+print:
+    ; Print the "SCORE" label
+    MOV AH, 02H               ; Set cursor position
+    MOV BH, 00H               ; Page number
+    MOV DH, 00H               ; Row
+    MOV DL, 01H               ; Column
+    INT 10H
+
+    ; Display "SCORE: "
+    MOV AH, 09H               ; Display string
+    MOV DX, offset score_label
+    INT 21H
+
+    MOV AX, score_1
+    MOV BX, 10       ; base 10
+    XOR CX, CX       ; CX will store digit count
+
+    ; convert score to ascii
+    convert_to_ascii:
+        XOR DX, DX
+        DIV BX              ; AX = AX / 10, DX = AX % 10
+        ADD DL, '0'         ; convert remainder to ascii
+        PUSH DX             ; save the ascii digit
+        INC CX              ; increment digit count
+        CMP AX, 0
+        JNZ convert_to_ascii
+
+    ; convert decimal to ascii
+    MOV DI, offset score_string
+    print_score:
+        POP DX              ; get the ascii digit
+        MOV [DI], DL        ; store the digit in the string 
+        INC DI              ; move to the next position
+        LOOP print_score
+
+    MOV BYTE PTR [DI], '$'    ; Add string terminator
+
+    ; move cursor to fixed position
+    MOV AH, 02H     ; set cursor position
+    MOV BH, 00H     ; page number
+    MOV DH, 00h     ; row
+    MOV DL, 08h     ; column
+    INT 10H
+
+    ; display the score
+    MOV AH, 09H     ; display string
+    MOV DX, offset score_string
+    INT 21H 
+
+    POP DI
+    POP DX
+    POP CX
+    POP BX
+    POP AX     
+RET
+DisplayScore_proc ENDP
 
 
 
