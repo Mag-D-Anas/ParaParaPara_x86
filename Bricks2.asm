@@ -11,7 +11,7 @@ public CheckCollision_proc2
 brick_width DW 18    ; width of each brick
 brick_height DW 6    ; height of each brick
 brick_initial_x DW 160, 180, 200, 220, 240, 260, 280, 300   ; brick columns
-brick_initial_y DW 15, 31, 47, 63                   ; brick rows
+brick_initial_y DW 15, 31, 47, 63                           ; brick rows
 brick_colors DB 3, 5, 9, 10
 ROW_COUNT EQU 4       ; number of rows
 COLUMN_COUNT EQU 8    ; number of columns
