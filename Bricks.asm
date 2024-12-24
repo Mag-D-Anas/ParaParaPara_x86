@@ -20,6 +20,7 @@ state_of_bricks DB ROW_COUNT * COLUMN_COUNT DUP(0)
 
 ; SCORE INFO
 score DW 0
+score_label DB 'Score: ',  '$'
 score_string DB '0', "$"
 
 
@@ -45,6 +46,8 @@ DrawBricks_proc PROC FAR
    MOV SI, offset brick_initial_x      ; set the column
    MOV DI, offset brick_initial_y      ; set the row
    MOV BX, 0
+
+   CALL DisplayScore_proc
 
    draw_bricks:
     MOV AL, brick_colors[BX]           ; set the color of the brick
@@ -205,8 +208,8 @@ CheckCollision_proc PROC FAR
 
         ; set the state of the brick to 1 and destroy the brick
          destroy:
-            MOV state_of_bricks[BX], 1
             CALL DisplayScore_proc     ; display the score
+            MOV state_of_bricks[BX], 1
             CALL DestroyBrick_proc
             JMP exit_collision
 
@@ -253,7 +256,42 @@ DisplayScore_proc PROC NEAR
     PUSH DX
     PUSH DI
 
-    ADD score, 1                 ; increment the score
+;  SCORE HANDLINNG
+    CMP CL, 0
+    JE score_increment_4
+    CMP CL, 1
+    JE score_increment_3
+    CMP CL, 2
+    JE score_increment_2
+    CMP CL, 3
+    JE score_increment_1
+    JMP print
+
+    score_increment_1:
+        ADD score, 1
+        JMP print
+    score_increment_2:
+        ADD score, 2
+        JMP print   
+    score_increment_3:
+        ADD score, 3
+        JMP print
+    score_increment_4:
+        ADD score, 4
+
+print:
+    ; Print the "SCORE" label
+    MOV AH, 02H               ; Set cursor position
+    MOV BH, 00H               ; Page number
+    MOV DH, 00H               ; Row
+    MOV DL, 01H               ; Column
+    INT 10H
+
+    ; Display "SCORE: "
+    MOV AH, 09H               ; Display string
+    MOV DX, offset score_label
+    INT 21H
+
     MOV AX, score
     MOV BX, 10       ; base 10
     XOR CX, CX       ; CX will store digit count
@@ -272,7 +310,7 @@ DisplayScore_proc PROC NEAR
     MOV DI, offset score_string
     print_score:
         POP DX              ; get the ascii digit
-        MOV [score_string], DL        ; store the digit in the string 
+        MOV [DI], DL        ; store the digit in the string 
         INC DI              ; move to the next position
         LOOP print_score
 
@@ -282,7 +320,7 @@ DisplayScore_proc PROC NEAR
     MOV AH, 02H     ; set cursor position
     MOV BH, 00H     ; page number
     MOV DH, 00h     ; row
-    MOV DL, 03h     ; column
+    MOV DL, 08h     ; column
     INT 10H
 
     ; display the score
