@@ -19,7 +19,7 @@ COLUMN_COUNT EQU 8    ; number of columns
 state_of_bricks DB ROW_COUNT * COLUMN_COUNT DUP(0)
 
 ; SCORE INFO
-score DB 0
+score DW 0
 score_string DB '0', "$"
 
 
@@ -206,7 +206,6 @@ CheckCollision_proc PROC FAR
         ; set the state of the brick to 1 and destroy the brick
          destroy:
             MOV state_of_bricks[BX], 1
-            INC score                  ; increment the score
             CALL DisplayScore_proc     ; display the score
             CALL DestroyBrick_proc
             JMP exit_collision
@@ -249,13 +248,35 @@ DestroyBrick_proc ENDP
               
 DisplayScore_proc PROC NEAR 
     PUSH AX
-    XOR AX, AX      ; clear ax
-    MOV AL, score
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH DI
+
+    ADD score, 1                 ; increment the score
+    MOV AX, score
+    MOV BX, 10       ; base 10
+    XOR CX, CX       ; CX will store digit count
+
+    ; convert score to ascii
+    convert_to_ascii:
+        XOR DX, DX
+        DIV BX              ; AX = AX / 10, DX = AX % 10
+        ADD DL, '0'         ; convert remainder to ascii
+        PUSH DX             ; save the ascii digit
+        INC CX              ; increment digit count
+        CMP AX, 0
+        JNZ convert_to_ascii
 
     ; convert decimal to ascii
-    ADD AL, 30h
-    MOV [score_string], AL
+    MOV DI, offset score_string
+    print_score:
+        POP DX              ; get the ascii digit
+        MOV [score_string], DL        ; store the digit in the string 
+        INC DI              ; move to the next position
+        LOOP print_score
 
+    MOV BYTE PTR [DI], '$'    ; Add string terminator
 
     ; move cursor to fixed position
     MOV AH, 02H     ; set cursor position
@@ -267,8 +288,13 @@ DisplayScore_proc PROC NEAR
     ; display the score
     MOV AH, 09H     ; display string
     MOV DX, offset score_string
-    INT 21H  
-    POP AX       
+    INT 21H 
+
+    POP DI
+    POP DX
+    POP CX
+    POP BX
+    POP AX     
 RET
 DisplayScore_proc ENDP
 
