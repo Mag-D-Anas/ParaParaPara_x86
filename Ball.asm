@@ -16,6 +16,8 @@ public BALL_SIZE
 public BALL_VELOCITY_X
 public BALL_VELOCITY_Y
 
+public first_player_lives
+
 ; import paddle parameters
 extrn paddleX:WORD
 extrn paddleY:WORD
@@ -28,18 +30,24 @@ extrn paddleHeight:WORD
 .data
             WINDOW_WIDTH    DW      160     ; 320 pixels
             WINDOW_HEIGHT   DW      200     ; 200 pixels
-            WINDOW_BOUNDS   DW      2       ; pre check the walls
+            WINDOW_BOUNDS   DW      2      ; pre check the walls
             BALL_X          DW      70     ; X position of the ball
             BALL_Y          DW      100     ; Y position of the ball
             BALL_SIZE       DW      4     ; Size of the ball (pixels width and height)
             BALL_VELOCITY_X DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y DW      4      ; positive -> go down // negative -> go up
 
+            ; LIVES INFO
+            LIVES_LABEL         DB      'LIVES: ', '$'
+            first_player_lives  DB      3      ; number of lives for player 1
+            LIVES_STRING        DB      '3', '$'
 .code
 
     INIT_BALL PROC FAR
             MOV      AX, @DATA
             MOV      DS, AX
+
+            CALL DISPLAY_LIVES
             RET
     INIT_BALL ENDP
 
@@ -123,8 +131,14 @@ extrn paddleHeight:WORD
             NEXT_CHECK:
             RET
 
-
+        ; If the ball hits the floor, then the player loses
         EXIT:
+            DEC      first_player_lives
+            CALL     DISPLAY_LIVES          ; Display the remaining lives 
+            CMP      first_player_lives, 0
+            JNE      RESET_BALL             ; If the player still has lives, then reset the ball
+
+        RESET_BALL:
             CALL     CLEAR_BALL             ; Clear the loser ball
             MOV      BALL_VELOCITY_X, -5    ; Reset X - velocity ( dump value )
             MOV      BALL_VELOCITY_Y, 4   ; Reset Y - velocity ( dump value )
@@ -133,6 +147,7 @@ extrn paddleHeight:WORD
             RET
 
     MOVE_BALL ENDP
+
 
 
 
@@ -195,5 +210,35 @@ extrn paddleHeight:WORD
     CLEAR_BALL ENDP
     
 
+    DISPLAY_LIVES PROC NEAR
+        PUSH AX
+        PUSH BX
+        PUSH DX
+        PUSH DI
+        ; print the "LIVES" label
+        MOV AH, 02H               ; Set cursor position
+        MOV BH, 00H               ; Page number
+        MOV DH, 00H               ; Row
+        MOV DL, 10                ; Column
+        INT 10H
+
+        MOV AH, 09H
+        LEA DX, LIVES_LABEL
+        INT 21H
+   
+        MOV AL, first_player_lives
+        ADD AL, 30H
+        MOV [LIVES_STRING], AL
+
+        MOV AH, 09H 
+        LEA DX, LIVES_STRING
+        INT 21H
+
+        POP DI
+        POP DX
+        POP BX
+        POP AX
+        RET 
+    DISPLAY_LIVES ENDP                                        
 
 end INIT_BALL

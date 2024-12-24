@@ -36,6 +36,8 @@ extrn paddleHeight2:WORD
             BALL_VELOCITY_X2 DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y2 DW      4      ; positive -> go down // negative -> go up
 
+            
+
 .code
 
     INIT_BALL_REC PROC FAR
