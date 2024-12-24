@@ -16,6 +16,8 @@ public BALL_SIZE
 public BALL_VELOCITY_X
 public BALL_VELOCITY_Y
 
+public first_player_lives
+
 ; import paddle parameters
 extrn paddleX:WORD
 extrn paddleY:WORD
@@ -217,7 +219,7 @@ extrn paddleHeight:WORD
         MOV AH, 02H               ; Set cursor position
         MOV BH, 00H               ; Page number
         MOV DH, 00H               ; Row
-        MOV DL, 10               ; Column
+        MOV DL, 10                ; Column
         INT 10H
 
         MOV AH, 09H

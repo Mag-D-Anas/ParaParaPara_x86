@@ -23,6 +23,8 @@ extrn BALL_Y:WORD
             BALL_Y_REC          DW      ?     ; Y position of the ball
             BALL_SIZE_REC       DW      4     ; Size of the ball (pixels width and height)
 
+            
+
 .code
 
     INIT_BALL_REC PROC FAR
