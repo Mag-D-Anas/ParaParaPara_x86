@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Assemble with TASM in DOSBox",
+      "type": "shell",
+      "command": "C:\\Program Files (x86)\\DOSBox-0.74-3\\DOSBox.exe", // Path to DOSBox executable
+      "args": [
+        "-c",
+        "mount C E:\\ParaParaPara_x86",
+        "-c",
+        "C:",
+        "-c",
+
+        "TASM.EXE /m2 Paddle.asm",
+        "-c",
+        "TASM.EXE /m2 Paddle2.asm",
+        "-c",
+        "TASM.EXE /m2 Bricks.asm",
+        "-c",
+        "TASM.EXE /m2 Bricks2.asm",
+        "-c",
+        "TASM.EXE /m2 Ball.asm",
+        "-c",
+        "TASM.EXE /m2 Ball2.asm",
+        "-c",
+        "TASM.EXE /m2 main.asm",
+        "-c",
+        "LINK.EXE main.obj Ball2.obj Ball.obj Bricks.obj Bricks2.obj Paddle.obj Paddle2.obj",
+
+        "-c",
+        "main.exe"
+        // "-c",
+        // "exit"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}
