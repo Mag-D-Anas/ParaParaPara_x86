@@ -9,7 +9,6 @@ extrn CHAT:FAR
     text_main_menu_title db 'WELCOME TO BRICK BREAKER$'
     text_main_menu_select_options db 'PLEASE SELECT OPTIONS$'
     text_main_menu_play_game db 'PRESS ENTER TO PLAY GAME$'
-    text_main_menu_instruction db 'PRESS I TO GO INTO INSTRUCTION BOX$'
     text_main_menu_chat db 'PRESS C TO CHAT $'
     text_main_menu_exit db 'PRESS esc TO EXIT $'
     
@@ -21,12 +20,12 @@ MENU PROC
     mov ax,@DATA
     mov ds,ax
     xor ax,ax
+
 start:
 
  mov ah, 0              
     mov al, 13              
     int 10h 
-
    
     call MainMenu_proc
     call GetKey_proc
@@ -79,16 +78,7 @@ MainMenu_proc proc NEAR
     lea dx,text_main_menu_play_game
     call DisplayString_proc
     pop dx
-
-    inc dh
-    inc dh
-
-    call MoveCursor_proc
-    push dx
-    lea dx,text_main_menu_instruction
-    call DisplayString_proc
-    pop dx
-
+    
     inc dh
     inc dh
 
