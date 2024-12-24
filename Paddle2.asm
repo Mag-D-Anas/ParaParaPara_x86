@@ -2,7 +2,6 @@
 ; DATE: 5 Dec 2024
 ; Paddle logic
 
-public CheckInput2
 public ClearPaddle2
 public DrawPaddle2
 public InitPaddle2
@@ -12,19 +11,21 @@ public paddleY2
 public paddleWidth2
 public paddleHeight2
 
+extrn paddleX:WORD
+extrn prevPaddleX:WORD
 .MODEL SMALL
 .STACK 100h
 
 .DATA
-paddleX2 DW 230       ; Initial X position of the paddle
+paddleX2 DW ?       ; Initial X position of the paddle
 paddleY2 DW 180       ; Y position of the paddle
 prevPaddleX2 DW ?   ; Previous X position of the paddle
-paddleWidth2 DW 40    ; Width of the paddle
-paddleHeight2 DW 10   ; Height of the paddle
+paddleWidth2 DW 30    ; Width of the paddle
+paddleHeight2 DW 5   ; Height of the paddle
 
 
 screenHeight2 EQU 200  ; Screen height in pixels
-leftWall2 EQU 160        ; Left wall position
+leftWall2 EQU 161        ; Left wall position
 rightWall2 EQU 320     ; Right wall position
 
 
@@ -69,55 +70,62 @@ InitPaddle2 PROC FAR
     mov prevPaddleX2, ax
     RET
 InitPaddle2 ENDP
-; Subroutine to check keyboard input
-CheckInput2 PROC FAR
-    ; Check for key press
-    MOV AH, 01h
-    INT 16h
-    JZ NoKey2           ; No key pressed
+; ; Subroutine to check keyboard input
+; CheckInput2 PROC FAR
+;     ; Check for key press
+;     MOV AH, 01h
+;     INT 16h
+;     JZ NoKey2           ; No key pressed
 
-    ; Get the key
-    MOV AH, 00h
-    INT 16h
-    CMP AH, 4Bh        ; Left arrow key
-    JE MoveLeft2
-    CMP AH, 4Dh        ; Right arrow key
-    JE MoveRight2
-NoKey2:
-    RET
+;     ; Get the key
+;     MOV AH, 00h
+;     INT 16h
+;     CMP AH, 4Bh        ; Left arrow key
+;     JE MoveLeft2
+;     CMP AH, 4Dh        ; Right arrow key
+;     JE MoveRight2
+; NoKey2:
+;     RET
 
-MoveLeft2:
-    mov ax, paddleX2
-    mov prevPaddleX2, ax ; Save the previous X position
-    mov ax, paddleSpeed2
-    SUB paddleX2, ax     ; Move left by (speed) pixel
+; MoveLeft2:
+;     mov ax, paddleX2
+;     mov prevPaddleX2, ax ; Save the previous X position
+;     mov ax, paddleSpeed2
+;     SUB paddleX2, ax     ; Move left by (speed) pixel
 
-    ; Check if it hits the left wall
-    MOV AX, paddleX2
-    CMP AX, leftWall2
-    JGE NoKey2
-    MOV paddleX2, leftWall2
-    RET
+;     ; Check if it hits the left wall
+;     MOV AX, paddleX2
+;     CMP AX, leftWall2
+;     JGE NoKey2
+;     MOV paddleX2, leftWall2
+;     RET
 
-MoveRight2:
-    mov ax, paddleX2
-    mov prevPaddleX2, ax ; Save the previous X position
-    mov ax, paddleSpeed2
-    ADD paddleX2, ax     ; Move right by (speed) pixel
+; MoveRight2:
+;     mov ax, paddleX2
+;     mov prevPaddleX2, ax ; Save the previous X position
+;     mov ax, paddleSpeed2
+;     ADD paddleX2, ax     ; Move right by (speed) pixel
 
-    ; Check if it hits the right wall
-    MOV AX, paddleX2
-    ADD AX, paddleWidth2
-    CMP AX, rightWall2
-    JL NoKey2
-    mov bx, rightWall2
-    sub bx, paddleWidth2
-    MOV paddleX2, bx
-    RET
-CheckInput2 ENDP
+;     ; Check if it hits the right wall
+;     MOV AX, paddleX2
+;     ADD AX, paddleWidth2
+;     CMP AX, rightWall2
+;     JL NoKey2
+;     mov bx, rightWall2
+;     sub bx, paddleWidth2
+;     MOV paddleX2, bx
+;     RET
+; CheckInput2 ENDP
 
 ClearPaddle2 PROC FAR
-    mov ax, prevPaddleX2
+    mov ax, prevPaddleX
+    add ax, 161
+    mov prevPaddleX2, ax
+    
+    mov bx, paddleX
+    add bx, 161
+    mov paddleX2, bx
+
     cmp ax, paddleX2
     je NoClear ; no move, no clear
     jb ClearLeft ; move right, clear left side

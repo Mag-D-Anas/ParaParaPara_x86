@@ -8,9 +8,9 @@ public CheckCollision_proc
 .DATA 
 
 ; BRICKS INFO
-brick_width DW 30    ; width of each brick
+brick_width DW 18    ; width of each brick
 brick_height DW 6    ; height of each brick
-brick_initial_x DW 10, 45, 80, 115, 150, 185, 220, 255   ; brick columns
+brick_initial_x DW 0, 20, 40, 60, 80, 100, 120, 140   ; brick columns
 brick_initial_y DW 15, 31, 47, 63                   ; brick rowsck
 brick_colors DB 3, 5, 9, 10
 ROW_COUNT EQU 4       ; number of rows

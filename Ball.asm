@@ -26,13 +26,12 @@ extrn paddleHeight:WORD
 .stack 100h
 
 .data
-            WINDOW_WIDTH    DW      320     ; 320 pixels
+            WINDOW_WIDTH    DW      156     ; 320 pixels
             WINDOW_HEIGHT   DW      200     ; 200 pixels
-            WINDOW_BOUNDS   DW      4       ; pre check the walls
-            PREV_MS         DB      0       ; neede for fps movements
-            BALL_X          DW      160     ; X position of the ball
+            WINDOW_BOUNDS   DW      2       ; pre check the walls
+            BALL_X          DW      70     ; X position of the ball
             BALL_Y          DW      100     ; Y position of the ball
-            BALL_SIZE       DW      7     ; Size of the ball (pixels width and height)
+            BALL_SIZE       DW      4     ; Size of the ball (pixels width and height)
             BALL_VELOCITY_X DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y DW      4      ; positive -> go down // negative -> go up
 
@@ -129,7 +128,7 @@ extrn paddleHeight:WORD
             CALL     CLEAR_BALL             ; Clear the loser ball
             MOV      BALL_VELOCITY_X, -5    ; Reset X - velocity ( dump value )
             MOV      BALL_VELOCITY_Y, 4   ; Reset Y - velocity ( dump value )
-            MOV      BALL_X, 160            ; Reset X - position ( dump value )
+            MOV      BALL_X, 70            ; Reset X - position ( dump value )
             MOV      BALL_Y, 100            ; Reset Y - position ( dump value )
             RET
 
