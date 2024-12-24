@@ -17,7 +17,7 @@ extrn prevPaddleX:WORD
 .STACK 100h
 
 .DATA
-paddleX2 DW ?       ; Initial X position of the paddle
+paddleX2 DW 231       ; Initial X position of the paddle
 paddleY2 DW 180       ; Y position of the paddle
 prevPaddleX2 DW ?   ; Previous X position of the paddle
 paddleWidth2 DW 30    ; Width of the paddle
@@ -118,13 +118,13 @@ InitPaddle2 ENDP
 ; CheckInput2 ENDP
 
 ClearPaddle2 PROC FAR
-    mov ax, prevPaddleX
-    add ax, 161
-    mov prevPaddleX2, ax
+    mov ax, prevPaddleX2
+    ;add ax, 161
+    ;mov prevPaddleX2, ax
     
-    mov bx, paddleX
-    add bx, 161
-    mov paddleX2, bx
+    mov bx, paddleX2
+    ;add bx, 161
+    ;mov paddleX2, bx
 
     cmp ax, paddleX2
     je NoClear ; no move, no clear
