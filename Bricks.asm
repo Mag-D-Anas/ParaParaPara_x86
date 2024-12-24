@@ -16,9 +16,12 @@ brick_colors DB 3, 5, 9, 10
 ROW_COUNT EQU 4       ; number of rows
 COLUMN_COUNT EQU 8    ; number of columns
 
-; state_of_bricks_row DB ROW_COUNT DUP(0)      ; 0 - brick is not hit, 1 - brick is hit
-; state_of_bricks_col DB COLUMN_COUNT DUP(0)   ; 0 - brick is not hit, 1 - brick is hit
 state_of_bricks DB ROW_COUNT * COLUMN_COUNT DUP(0)
+
+; SCORE INFO
+score DB 0
+score_string DB '0', "$"
+
 
 extrn BALL_X:word
 extrn BALL_Y:word
@@ -203,7 +206,10 @@ CheckCollision_proc PROC FAR
         ; set the state of the brick to 1 and destroy the brick
          destroy:
             MOV state_of_bricks[BX], 1
+            INC score                  ; increment the score
+            CALL DisplayScore_proc     ; display the score
             CALL DestroyBrick_proc
+            JMP exit_collision
 
 
             next_column:
@@ -241,7 +247,30 @@ DestroyBrick_proc PROC NEAR
 RET
 DestroyBrick_proc ENDP
               
+DisplayScore_proc PROC NEAR 
+    PUSH AX
+    XOR AX, AX      ; clear ax
+    MOV AL, score
 
+    ; convert decimal to ascii
+    ADD AL, 30h
+    MOV [score_string], AL
+
+
+    ; move cursor to fixed position
+    MOV AH, 02H     ; set cursor position
+    MOV BH, 00H     ; page number
+    MOV DH, 00h     ; row
+    MOV DL, 03h     ; column
+    INT 10H
+
+    ; display the score
+    MOV AH, 09H     ; display string
+    MOV DX, offset score_string
+    INT 21H  
+    POP AX       
+RET
+DisplayScore_proc ENDP
 
 
 
