@@ -34,14 +34,14 @@ extrn BALL_Y:WORD
 
     DRAW_BALL_REC PROC FAR
     
-            MOV      AX, BALL_X
-            MOV      BALL_X_REC, AX
-            MOV      AX, BALL_Y
-            MOV      BALL_Y_REC, AX
+            ; MOV      AX, BALL_X
+            ; MOV      BALL_X_REC, AX
+            ;MOV      AX, BALL_Y
+            ;MOV      BALL_Y_REC, AX
 
             MOV      CX, BALL_X_REC            ; X - initial position
-            ADD      CX, SHIFT_REC
-            MOV      BALL_X_REC, CX
+            ;ADD      CX, SHIFT_REC
+            ;MOV      BALL_X_REC, CX
             MOV      DX, BALL_Y_REC            ; Y - initial position
 
         DRAW_COLUMN_REC:
