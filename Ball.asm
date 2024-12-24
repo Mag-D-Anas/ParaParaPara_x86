@@ -28,9 +28,12 @@ extrn paddleHeight:WORD
 .stack 100h
 
 .data
-            WINDOW_WIDTH    DW      160     ; 320 pixels
+
+            WINDOW_WIDTH    DW      158     ; 320 pixels
+            LEFT_WALL      DW       4      ; left wall
             WINDOW_HEIGHT   DW      200     ; 200 pixels
-            WINDOW_BOUNDS   DW      2      ; pre check the walls
+            WINDOW_BOUNDS   DW      0      ; pre check the walls
+            CEIL       DW      4      ; top wall
             BALL_X          DW      70     ; X position of the ball
             BALL_Y          DW      100     ; Y position of the ball
             BALL_SIZE       DW      4     ; Size of the ball (pixels width and height)
@@ -61,9 +64,41 @@ extrn paddleHeight:WORD
 
  
 
+CLEAR_BALL PROC FAR
+            ; Initial positions
+            MOV      CX, BALL_X           ; X - initial position
+            MOV      DX, BALL_Y           ; Y - initial position
+
+        CLEAR_COLUMN:
+            MOV      AH, 0Ch              ; {
+            MOV      AL, 00h              ;     Clearing pixel (black)
+            MOV      BH, 00h              ;      At (x = CX, y = DX) position
+            INT      10h                  ; }
+
+            INC      DX                   ; Counter for each row pixel (start of Y-index of the row till its size)     
+            MOV      AX, BALL_Y           ; Calculating Y-index of the pixel
+            ADD      AX, BALL_SIZE        ;    at the last row
+            CMP      DX, AX               ; Compare the curr row ( DX ) with the last row ( AX )
+            JNA      CLEAR_COLUMN         ; We didn't reach the last row ( AX ) ? => Repeat
+
+        SHIFTCOLUMN2:                     ; if we did, then
+            INC      CX                   ; increment our current column
+            MOV      DX, BALL_Y           ; reset our current row
+            MOV      AX, BALL_X           ; Calculating X-index of the pixel
+            ADD      AX, BALL_SIZE        ;    at the last column
+            CMP      CX, AX               ; Compare the curr column ( CX ) with the last column ( AX )
+            JNA      CLEAR_COLUMN         ; We didn't reach the last column ( AX ) ? => Keep drawing
+
+            RET
+
+    CLEAR_BALL ENDP
+
+
+
+
     MOVE_BALL PROC FAR    
             ; Left Wall
-            MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
+            MOV      BX,LEFT_WALL     ; pre checking the ball collision with safety space
             CMP      BALL_X, BX             ; comparing the curr X - position with the first column of the window
             JB       NEG_VELOCITY_X         ; isHitted? change the direction of X - velocity
 
@@ -76,7 +111,7 @@ extrn paddleHeight:WORD
             JA       NEG_VELOCITY_X         ; isHitted? change the direction of X - velocity
         
             ; Ceil
-            MOV      BX, WINDOW_BOUNDS      ; pre checking the ball collision with safety space
+            MOV      BX, CEIL      ; pre checking the ball collision with safety space
             CMP      BALL_Y, BX             ; comparing the curr Y - position with the first row of the window
             JB       NEG_VELOCITY_Y         ; isHitted? change the direction of Y - velocity
 
@@ -95,17 +130,17 @@ extrn paddleHeight:WORD
             ADD      BX, AX                 ; BX holds the end of the paddle
             CMP      BALL_X, BX             ; comparing the curr X - position with the end of the paddle
             JB      CMP_PADDLE_START       ; within range? check the start of the paddle
-            JE     CHECK_PADDLE_WALLS         ; bounce back
+             ; bounce back
             JMP NEXT_CHECK              ; continue checking other collisions
-            
+
             CMP_PADDLE_START: ; we know that x <= paddleX + paddleWidth
             MOV      BX, BALL_X
             ADD      BX, BALL_SIZE
             CMP      BX, AX             ; comparing the curr X - position with the start of the paddle
             JA      CMP_PADDLE_Y           ; within range? check the Y - position of the paddle
-            JE      CHECK_PADDLE_WALLS         ; bounce back
+             ; bounce back
             JMP NEXT_CHECK              ; continue checking other collisions
-            
+
             CMP_PADDLE_Y: ; we know that x <= paddleX + paddleWidth and x + BallWidth => paddleX
             MOV      AX, paddleY            ; AX holds the start of the paddle
             SUB      AX, BALL_SIZE          ; needed to check AX with the start of the ball and without it the ball go out of bound
@@ -113,13 +148,8 @@ extrn paddleHeight:WORD
             JAE       NEG_VELOCITY_Y         ; bounce back
             JMP NEXT_CHECK              ; continue checking other collisions
 
-            CHECK_PADDLE_WALLS:
-            MOV      AX, paddleY            ; AX holds the start of the paddle
-            SUB      AX, BALL_SIZE          ; needed to check AX with the start of the ball and without it the ball go out of bound
-            CMP      BALL_Y, AX             ; comparing the curr Y - position with the start of the paddle
-            JA       NEG_VELOCITY_X
-            JMP      NEXT_CHECK
             
+
             NEG_VELOCITY_X:
             NEG      BALL_VELOCITY_X        ; positive -> go right // negative -> go left
             RET
@@ -131,7 +161,8 @@ extrn paddleHeight:WORD
             NEXT_CHECK:
             RET
 
-        ; If the ball hits the floor, then the player loses
+
+
         EXIT:
             DEC      first_player_lives
             CALL     DISPLAY_LIVES          ; Display the remaining lives 
@@ -180,65 +211,8 @@ extrn paddleHeight:WORD
 
     DRAW_BALL ENDP
 
-     CLEAR_BALL PROC FAR
-            ; Initial positions
-            MOV      CX, BALL_X           ; X - initial position
-            MOV      DX, BALL_Y           ; Y - initial position
-
-        CLEAR_COLUMN:
-            MOV      AH, 0Ch              ; {
-            MOV      AL, 00h              ;     Clearing pixel (black)
-            MOV      BH, 00h              ;      At (x = CX, y = DX) position
-            INT      10h                  ; }
-
-            INC      DX                   ; Counter for each row pixel (start of Y-index of the row till its size)     
-            MOV      AX, BALL_Y           ; Calculating Y-index of the pixel
-            ADD      AX, BALL_SIZE        ;    at the last row
-            CMP      DX, AX               ; Compare the curr row ( DX ) with the last row ( AX )
-            JNA      CLEAR_COLUMN         ; We didn't reach the last row ( AX ) ? => Repeat
-
-        SHIFTCOLUMN2:                     ; if we did, then
-            INC      CX                   ; increment our current column
-            MOV      DX, BALL_Y           ; reset our current row
-            MOV      AX, BALL_X           ; Calculating X-index of the pixel
-            ADD      AX, BALL_SIZE        ;    at the last column
-            CMP      CX, AX               ; Compare the curr column ( CX ) with the last column ( AX )
-            JNA      CLEAR_COLUMN         ; We didn't reach the last column ( AX ) ? => Keep drawing
-
-            RET
-
-    CLEAR_BALL ENDP
+     
     
 
-    DISPLAY_LIVES PROC NEAR
-        PUSH AX
-        PUSH BX
-        PUSH DX
-        PUSH DI
-        ; print the "LIVES" label
-        MOV AH, 02H               ; Set cursor position
-        MOV BH, 00H               ; Page number
-        MOV DH, 00H               ; Row
-        MOV DL, 10                ; Column
-        INT 10H
-
-        MOV AH, 09H
-        LEA DX, LIVES_LABEL
-        INT 21H
-   
-        MOV AL, first_player_lives
-        ADD AL, 30H
-        MOV [LIVES_STRING], AL
-
-        MOV AH, 09H 
-        LEA DX, LIVES_STRING
-        INT 21H
-
-        POP DI
-        POP DX
-        POP BX
-        POP AX
-        RET 
-    DISPLAY_LIVES ENDP                                        
 
 end INIT_BALL

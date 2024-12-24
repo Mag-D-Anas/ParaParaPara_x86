@@ -25,7 +25,7 @@ paddleHeight DW 5   ; Height of the paddle
 
 
 screenHeight EQU 200  ; Screen height in pixels
-leftWall EQU 0        ; Left wall position
+leftWall EQU 4        ; Left wall position
 rightWall EQU 158     ; Right wall position
 
 

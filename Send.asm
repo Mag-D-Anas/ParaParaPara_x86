@@ -1,75 +1,57 @@
-PUBLIC Chat
-.MODEL small
-.STACK 100h
-.data
-VALUE DB ?
-Xpos_s DB 0
-Ypos_s DB 0
-Xpos_r DB 0
-Ypos_r DB 0Dh
-color_s equ 07h
-color_r equ 05h
-.code
+public CHAT
 
-ResetUpperScreen MACRO
-    mov ax,060Dh
-    mov bh,color_s
-    mov cx,0       
+ClearScreen MACRO
+    mov ax,0600h
+    mov bx,7007h
+    mov cx,0    
     mov dh, 12
     mov dl, 79
     int 10h 
-ENDM ResetUpperScreen
-
-ResetLowerScreen MACRO
-    mov ax,060Ch
-    mov bh,color_r
+    mov ax,0600h
+    mov bx,0770h
     mov ch,13
-    mov cl, 0       
+    mov cl, 0     
     mov dh,24
     mov dl, 79
     int 10h 
     
-ENDM ResetLowerScreen
+ENDM ClearScreen
+ClearUpperScreen MACRO
+    mov ax,0601h
+    mov bx,7007h
+    mov cx,0    
+    mov dh, 12
+    mov dl, 79
+    int 10h 
+    
+ENDM ClearUpperScreen
 
+ClearLowerScreen MACRO
+    mov ax,0601h
+    mov bx,0770h
+    mov ch,13
+    mov cl, 0     
+    mov dh,24
+    mov dl, 79
+    int 10h 
+    
+ENDM ClearLowerScreen
 
-ScrollUpperScreen MACRO  
-mov ah,6
-mov al , 1
-mov bh,07h
-mov ch,0       
-mov cl,0       
-mov dh,12    
-mov dl,79
-int 10h 
-  
-ENDM ScrollUpperScreen 
-
-
-ScrollLowerScreen MACRO
-mov ah,6
-mov al , 1
-mov bh,05h
-mov ch,13     
-mov cl,0        
-mov dh,24    
-mov dl,79 
-int 10h 
-ENDM ScrollLowerScreen 
 
 SaveCursorS MACRO
     mov ah, 3h
     mov bh, 0h
     int 10h
-    mov Xpos_s, DL
-    mov Ypos_s, DH
+    mov XposS, DL
+    mov YposS, DH
 ENDM SaveCursorS
 
 SaveCursorR MACRO
     mov ah, 3h
     mov bh, 0h
     int 10h
-    mov Xpos_r, DL
-    mov Ypos_r, DH
+    mov XposR, DL
+    mov YposR, DH
 ENDM SaveCursorR
 
 SetCursor MACRO x, y
@@ -80,14 +62,22 @@ SetCursor MACRO x, y
     int 10h
 ENDM SetCursor
 
-Chat proc
+
+.MODEL small
+.STACK 100h
+.data
+VALUE DB ?
+XposS DB 0
+YposS DB 0
+XposR DB 0
+YposR DB 0Dh
+
+.code
+CHAT proc
     mov ax, @data
     mov ds, ax
 
    
-      ResetUpperScreen
-      ResetLowerScreen
-      SetCursor 0, 0
 
     ; initinalize COM
     ;Set Divisor Latch Access Bit
@@ -110,10 +100,14 @@ Chat proc
     out dx,al
 
 
-    call checkInput
+        ; Make sure it is Text-Mode
 
-    
-checkInput proc
+      ClearScreen
+      SetCursor 0, 0
+
+    call detect
+
+    detect proc
 
     START:
 
@@ -121,6 +115,7 @@ checkInput proc
         mov ah,01h     ; check if key is pressed
         Int 16h
         jz dummy2        ; if no key is pressed go check for uart again
+        jnz send
 
     send:
         mov ah,0h     ;read the char to see if it is esc
@@ -131,32 +126,37 @@ checkInput proc
         jz ENTERKEY
         jnz CONT
 
-    dummy2:jmp recieve
+        dummy2:jmp recieve
 
     ENTERKEY:
-        cmp Ypos_s, 11
-        jnz INCREMENT ; no overflow
+        cmp YposS, 12
+        jz OverFlow
+        jnz INCREMENT
         
         OverFlow:
-            ScrollUpperScreen
-            jmp PRINT
+        ClearUpperScreen
+        mov XposS, 0
+        mov YposS, 12
+        SetCursor XposS, YposS
+        jmp PRINT
 
         INCREMENT:
-        inc Ypos_s
-        MOV Xpos_s, 0 ; reset x position
+        inc YposS
+        MOV XposS, 0
 
         CONT:
-        SetCursor Xpos_s, Ypos_s
-        cmp Xpos_s, 79 ; check if x position is at the end of the screen
-        jnz PRINT ; if not print the char
-
-        CHECKY: ; check if y position is at the end of the screen
-        cmp Ypos_s, 11
+        SetCursor XposS, YposS
+        cmp XposS, 79
+        jz CHECKY
         jnz PRINT
-        ScrollUpperScreen
-        mov Xpos_s, 0
-        mov Ypos_s, 11
-        SetCursor Xpos_s, Ypos_s ; reset the cursor to the start of the screen
+
+        CHECKY:
+        cmp YposS, 12
+        jnz PRINT
+        ClearUpperScreen
+        mov XposS, 0
+        mov YposS, 12
+        SetCursor XposS, YposS
 
     PRINT:
         mov ah, 2
@@ -168,7 +168,7 @@ checkInput proc
         mov dx , 3FDH		; Line Status Register
     AGAIN:  
         In al , dx 			;Read Line Status
-        AND al , 00100000b ; 0 -> busy, recieve, 1 - > free
+        AND al , 00100000b
         JZ recieve
 
 
@@ -207,31 +207,38 @@ checkInput proc
 
         cmp VALUE, 0Dh
         jnz contR
+        jz newlineR
 
         newlineR:
-        cmp ypos_r, 24 ; end of recieve screen
+        cmp yposR, 24
+        jz XR
         jnz YR
 
-        ScrollLowerScreen
-
+        XR:
+        ClearLowerScreen
+        mov XposR, 0
+        mov YposR, 24
+        SetCursor XposR, YposR
         jmp PRINTR
 
-        YR: ; not end of recieve screen, increase y, reset x and print
-        inc Ypos_r
-        mov Xpos_r, 0
+
+        YR:
+        inc YposR
+        mov XposR, 0
 
         contR:
-        SetCursor Xpos_r, Ypos_r
-        cmp Xpos_r, 79 ; end of screen x
+        SetCursor XposR, YposR
+        cmp XposR, 79
+        jz CHECKYR
         jnz PRINTR
 
-        CHECKYR: ; is end of screen x
-        cmp Ypos_r, 24 ; check if end of y
-        jnz PRINTR ; if not, print
-        ScrollLowerScreen ; scroll because end of screen y
-        mov Xpos_r, 0 ; reset x to start
-        mov Ypos_r, 24 ; put y in last line again
-        SetCursor Xpos_r, ypos_r
+        CHECKYR:
+        cmp YposR, 24
+        jnz PRINTR
+        ClearLowerScreen
+        mov XposR, 0
+        mov YposR, 24
+        SetCursor XposR, yposR
 
         PRINTR:
         mov ah, 2
@@ -242,11 +249,17 @@ checkInput proc
 
         jmp START
    
-checkInput endp
-
+   detect endp
 
 exit:
+
+mov XposS ,0
+mov YposS ,0
+mov XposR ,0
+mov YposR ,0Dh
+
 ret
-Chat endp
-end Chat
+ 
+CHAT endp
+end CHAT
 

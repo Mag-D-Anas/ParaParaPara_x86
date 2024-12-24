@@ -69,6 +69,7 @@ extrn score_2:word
       play_again_text DB      'Press R to play again', '$' ; Play again text
 
 
+
 .code
   GAME PROC FAR
       mov AX, @DATA
