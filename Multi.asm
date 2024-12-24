@@ -12,19 +12,15 @@ public COM_INIT
 public SendCom
 public RecCom
 
+public SendStartFlag
+public WaitForRec
+
 .MODEL small
 .STACK 100h
-.data
-VALUE DB ?
 .code
 
 
 COM_INIT proc
-   mov ax, @data
-    mov ds, ax
-
-   
-
     ; initinalize COM
     ;Set Divisor Latch Access Bit
     mov dx,3fbh 			; Line Control Register
@@ -47,35 +43,30 @@ COM_INIT proc
     ret
 COM_INIT endp
 
-SendCom proc
-
+SendStartFlag proc
+        waitToSendStart:
         mov dx , 3FDH		; Line Status Register
         In al , dx 			;Read Line Status
         AND al , 00100000b
-        JZ exitSend
-
+        JZ waitToSendStart
+        
         mov dx , 3F8H		; Transmit data register
-        mov al, 0EFH
+        mov al, 'b'
         out dx , al
         
+        RET
+SendStartFlag endp
+
+SendCom proc
         ;If empty put the VALUE in Transmit data register
-        mov dx , 3FDH		; Line Status Register
-        In al , dx 			;Read Line Status
-        AND al , 00100000b
-        JZ exitSend
+        ; mov dx , 3FDH		; Line Status Register
+        ; In al , dx 			;Read Line Status
+        ; AND al , 00100000b
+        ; JZ exitSend
 
-        mov dx , 3F8H		; Transmit data register
-        mov al, byte ptr BALL_X
-        out dx , al 
-
-        mov dx , 3FDH		; Line Status Register
-        In al , dx 			;Read Line Status
-        AND al , 00100000b
-        JZ exitSend
-
-        mov dx , 3F8H		; Transmit data register
-        mov al, byte ptr BALL_Y
-        out dx , al 
+        ; mov dx , 3F8H		; Transmit data register
+        ; mov al, byte ptr BALL_X
+        ; out dx , al 
 
         ; mov dx , 3FDH		; Line Status Register
         ; In al , dx 			;Read Line Status
@@ -83,8 +74,17 @@ SendCom proc
         ; JZ exitSend
 
         ; mov dx , 3F8H		; Transmit data register
-        ; mov al, byte ptr paddleX
-        ; out dx , al
+        ; mov al, byte ptr BALL_Y
+        ; out dx , al 
+
+        mov dx , 3FDH		; Line Status Register
+        In al , dx 			;Read Line Status
+        AND al , 00100000b
+        JZ exitSend
+
+        mov dx , 3F8H		; Transmit data register
+        mov ax, paddleX
+        out dx , al
 
         ; mov dx , 3FDH		; Line Status Register
         ; In al , dx 			;Read Line Status
@@ -101,53 +101,60 @@ SendCom proc
    
 SendCom endp
 
-RecCom proc
-
-        checkFlag:
-        mov dx , 3FDH		; Line Status Register
-        in al , dx
-        AND al , 1
-        JZ exitRec
+WaitForRec proc
+        rewait:
+                mov dx , 3FDH		; Line Status Register
+                In al , dx 			;Read Line Status
+                AND al , 1
+        JZ rewait
 
         mov dx, 03F8H
         in al, dx
-        CMP al, 0EFH
-        JNZ exitRec
+        CMP al, 'b'
+        JNZ rewait
 
-        readBallX:
-        mov dx , 3FDH		; Line Status Register
-        in al , dx 
-        AND al , 1
-        JZ readBallX
+        RET
 
-        ; WE RECIEVED HERE
-        mov dx , 03F8H
-        in al , dx 
-        mov byte ptr BALL_X_REC , al
-        add BALL_X_REC, 161
+WaitForRec endp
 
-        readBallY:
-        mov dx , 3FDH		; Line Status Register
-        in al , dx 
-        AND al , 1
-        JZ readBallY
+RecCom proc
 
-        mov dx , 03F8H
-        in al , dx
-        mov byte ptr BALL_Y_REC , al
-        add BALL_Y_REC, 161
-
-        ; readPaddleX:
+        ; readBallX:
         ; mov dx , 3FDH		; Line Status Register
         ; in al , dx 
         ; AND al , 1
-        ; JZ readPaddleX
+        ; JZ readBallX
+
+        ; ; WE RECIEVED HERE
+        ; mov dx , 03F8H
+        ; in al , dx 
+        ; mov byte ptr BALL_X_REC , al
+        ; add BALL_X_REC, 161
+
+        ; readBallY:
+        ; mov dx , 3FDH		; Line Status Register
+        ; in al , dx 
+        ; AND al , 1
+        ; JZ readBallY
 
         ; mov dx , 03F8H
         ; in al , dx
-        ; mov ah, 0
-        ; mov byte ptr paddleX2 , al
-        ; add paddleX2, 161
+        ; mov byte ptr BALL_Y_REC , al
+        ; add BALL_Y_REC, 161
+
+        readPaddleX:
+        mov dx , 3FDH		; Line Status Register
+        in al , dx 
+        AND al , 1
+        JZ exitRec
+
+        mov bx, paddleX2
+        mov prevPaddleX2, bx
+        mov dx , 03F8H
+        in al , dx
+        mov ah, 0
+        mov paddleX2 , ax
+        add paddleX2, 161
 
         ; readPaddlePrevX:
         ; mov dx , 3FDH		; Line Status Register

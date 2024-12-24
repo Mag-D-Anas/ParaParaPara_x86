@@ -35,6 +35,8 @@ extrn InitPaddle2:FAR
 extrn COM_INIT:FAR
 extrn SendCom:FAR
 extrn RecCom:FAR
+extrn SendStartFlag:FAR
+extrn WaitForRec:FAR
 
 
 
@@ -47,6 +49,7 @@ extrn RecCom:FAR
       vertical_line_y DW      0
       vertical_line_height DW 200
       vertical_line_width  DW 1
+      otherReady DB 0
 .code
   GAME PROC FAR
       mov AX, @DATA
@@ -62,6 +65,10 @@ extrn RecCom:FAR
       CALL     INIT_BALL
       CALL     INIT_BALL_REC
       CALL     COM_INIT
+
+      CALL SendStartFlag
+      CALL WaitForRec
+
 
       time_loop:
             CALL     DrawVerticalLine_proc
@@ -82,13 +89,19 @@ extrn RecCom:FAR
             JE       time_loop              ; if equal then hold the program 1ms 
             MOV      PREV_MS, DL            ; Update timne
             
+            ; mov dx , 3FDH		; Line Status Register
+            ; in al , dx 
+            ; AND al , 1
+            ; JNZ rec_first
+            ;CALL SendStartFlag
             CALL     SendCom
+            CALL     RecCom
+            ;rec_first:
 
             CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
             CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
             CALL     CLEAR_BALL_REC
             CALL     CheckCollision_proc    ; check bricks collision
-            CALL     RecCom
             CALL     CheckCollision_proc2   ; check bricks collision
             CALL     UPDATE_POSITION        ; update position of the ball
             CALL     DRAW_BALL_REC

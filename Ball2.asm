@@ -19,8 +19,8 @@ extrn BALL_Y:WORD
 
 .data
             SHIFT_REC           DW      161
-            BALL_X_REC          DW      ?     ; X position of the ball
-            BALL_Y_REC          DW      ?     ; Y position of the ball
+            BALL_X_REC          DW      231     ; X position of the ball
+            BALL_Y_REC          DW      100     ; Y position of the ball
             BALL_SIZE_REC       DW      4     ; Size of the ball (pixels width and height)
 
 .code
