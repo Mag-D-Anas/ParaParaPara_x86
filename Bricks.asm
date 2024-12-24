@@ -19,7 +19,7 @@ COLUMN_COUNT EQU 8    ; number of columns
 state_of_bricks DB ROW_COUNT * COLUMN_COUNT DUP(0)
 
 ; SCORE INFO
-score DW 0
+score_1 DW 0
 score_label DB 'Score: ',  '$'
 score_string DB '0', "$"
 
@@ -47,6 +47,7 @@ DrawBricks_proc PROC FAR
    MOV DI, offset brick_initial_y      ; set the row
    MOV BX, 0
 
+   MOV CL, 5
    CALL DisplayScore_proc
 
    draw_bricks:
@@ -268,16 +269,16 @@ DisplayScore_proc PROC NEAR
     JMP print
 
     score_increment_1:
-        ADD score, 1
+        ADD score_1, 1
         JMP print
     score_increment_2:
-        ADD score, 2
+        ADD score_1, 2
         JMP print   
     score_increment_3:
-        ADD score, 3
+        ADD score_1, 3
         JMP print
     score_increment_4:
-        ADD score, 4
+        ADD score_1, 4
 
 print:
     ; Print the "SCORE" label
@@ -292,7 +293,7 @@ print:
     MOV DX, offset score_label
     INT 21H
 
-    MOV AX, score
+    MOV AX, score_1
     MOV BX, 10       ; base 10
     XOR CX, CX       ; CX will store digit count
 
