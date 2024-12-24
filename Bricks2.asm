@@ -1,5 +1,6 @@
 public DrawBricks_proc2
 public CheckCollision_proc2
+public score_2
 
 
 .model small

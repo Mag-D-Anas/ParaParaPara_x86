@@ -1,6 +1,6 @@
 public DrawBricks_proc
 public CheckCollision_proc
-
+public score_1
 
 .model small
 .stack 100h

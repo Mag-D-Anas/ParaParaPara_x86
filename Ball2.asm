@@ -9,6 +9,8 @@ public INIT_BALL_REC
 public MOVE_BALL2
 public UPDATE_POSITION2
 
+public second_player_lives
+
 ; extrn to bricks
 public BALL_X_REC
 public BALL_Y_REC
@@ -36,7 +38,10 @@ extrn paddleHeight2:WORD
             BALL_VELOCITY_X2 DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y2 DW      4      ; positive -> go down // negative -> go up
 
-            
+            ; LIVES INFO
+            LIVES_LABEL         DB      'LIVES: ', '$'
+            second_player_lives  DB      50      ; number of lives for player 1
+            LIVES_STRING        DB      '3', '$'
 
 .code
 
@@ -128,6 +133,12 @@ extrn paddleHeight2:WORD
 
 
         EXIT:
+            DEC second_player_lives
+            CALL DISPLAY_LIVES           ; Display the remaining lives
+            CMP second_player_lives, 0
+            JNE RESET_BALL               ; if the player still has lives, reset the ball
+
+        RESET_BALL:
             CALL     CLEAR_BALL_REC             ; Clear the loser ball
             MOV      BALL_VELOCITY_X2, -5    ; Reset X - velocity ( dump value )
             MOV      BALL_VELOCITY_Y2, 4   ; Reset Y - velocity ( dump value )
@@ -203,6 +214,39 @@ extrn paddleHeight2:WORD
             RET
 
     CLEAR_BALL_REC ENDP
+
+    
+    DISPLAY_LIVES PROC NEAR
+        PUSH AX
+        PUSH BX
+        PUSH DX
+        PUSH DI
+        ; print the "LIVES" label
+        MOV AH, 02H               ; Set cursor position
+        MOV BH, 00H               ; Page number
+        MOV DH, 00H               ; Row
+        MOV DL, 71                ; Column
+        INT 10H
+
+        MOV AH, 09H
+        LEA DX, LIVES_LABEL
+        INT 21H
+
+        MOV AL, second_player_lives
+        ADD AL, 30H
+        MOV [LIVES_STRING], AL
+
+        MOV AH, 09H 
+        LEA DX, LIVES_STRING
+        INT 21H
+
+        POP DI
+        POP DX
+        POP BX
+        POP AX
+        RET 
+    DISPLAY_LIVES ENDP                                        
+
     
 
 
