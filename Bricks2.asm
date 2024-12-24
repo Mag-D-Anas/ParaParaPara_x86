@@ -5,12 +5,12 @@ public CheckCollision_proc2
 .model small
 .stack 100h
 
-.DATA 
+.data
 
 ; BRICKS INFO
 brick_width DW 18    ; width of each brick
 brick_height DW 6    ; height of each brick
-brick_initial_x DW 160, 180, 200, 220, 240, 260, 280, 300   ; brick columns
+brick_initial_x DW 161, 181, 201, 221, 241, 261, 281, 301   ; brick columns
 brick_initial_y DW 15, 31, 47, 63                   ; brick rowsck
 brick_colors DB 3, 5, 9, 10
 ROW_COUNT EQU 4       ; number of rows
@@ -204,7 +204,7 @@ CheckCollision_proc2 PROC FAR
          destroy:
             MOV state_of_bricks[BX], 1
             CALL DestroyBrick_proc2
-
+            jmp exit_collision
 
             next_column:
                 INC CH                      ; increment the column

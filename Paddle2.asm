@@ -26,8 +26,8 @@ paddleHeight2 DW 5   ; Height of the paddle
 
 
 screenHeight2 EQU 200  ; Screen height in pixels
-leftWall2 EQU 161        ; Left wall position
-rightWall2 EQU 320     ; Right wall position
+leftWall2 EQU 165        ; Left wall position
+rightWall2 EQU 318     ; Right wall position
 
 
 paddleSpeed2 DW 5    ; Speed of the paddle (pixels/move)
