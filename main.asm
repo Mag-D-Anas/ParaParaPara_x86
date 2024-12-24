@@ -45,6 +45,11 @@ extrn WaitForRec:FAR
 
 ; Lives
 extrn first_player_lives:byte
+extrn second_player_lives:byte
+
+; Scores
+extrn score_1:word
+extrn score_2:word
 
 .model small
 .stack 100h
@@ -61,6 +66,9 @@ extrn first_player_lives:byte
       game_over_text  DB      'GAME OVER', '$'	; Game over menu title
       winner_text     DB      'Player 0 won', '$'
       winner_index    DB       0	 ; the index of the winner => 1 for player 1, 2 for player 2
+      play_again_text DB      'Press R to play again', '$' ; Play again text
+
+
 
 .code
   GAME PROC FAR
@@ -136,11 +144,15 @@ extrn first_player_lives:byte
 
       show_game_over:
             CALL DrawGameOver_proc
+            CMP AL, 1                       ; check if the player wants to restart the game
+            JE EXITPROG
             JMP  time_loop
 
     EXITPROG:      
-            mov      ah, 4Ch
-            int      21h
+            ; mov      ah, 4Ch
+            ; int      21h
+            RET
+
     GAME ENDP
 
 
@@ -149,16 +161,32 @@ extrn first_player_lives:byte
 ; if win => display win screen
 ; win when a destroy all the bricks => when score equals 80
 checkWin_proc PROC
-    ; TODO: game over logic
+     CMP score_1, 80
+     JE set_winner_1
+     CMP score_2, 80
+     JE set_winner_2
+ 
+    ; check if any player has lost all lives
     CMP first_player_lives, 0
-    JE set_game_over
+    JE set_winner_2
+    CMP second_player_lives, 0
+    JE set_winner_1
+
+    ; if no conditions are met, continue the game
     JMP exit
-    set_game_over :
-     MOV game_over, 1
-     MOV winner_index, 1  ; for now
-     CALL DrawGameOver_proc
+
+     set_winner_1:
+         MOV winner_index, 1
+         JMP set_game_over
+      set_winner_2:
+         MOV winner_index, 2
+
+      set_game_over :
+       MOV game_over, 1
+       CALL DrawGameOver_proc
+
     exit:
- RET
+      RET
 checkWin_proc ENDP
 
 DrawGameOver_proc PROC NEAR
@@ -188,10 +216,32 @@ DrawGameOver_proc PROC NEAR
       LEA DX, winner_text
       INT 21H
 
+      ; show play again message
+      MOV AH, 02H
+      MOV BH, 00H
+      MOV DH, 08H
+      MOV DL, 04H
+      INT 10H
+
+      MOV AH, 09H
+      LEA DX, play_again_text
+      INT 21H
+
       ; wait for a key press
       MOV AH, 00H
       INT 16H
 
+      ; check if the key pressed is 'R' or 'r' to continue the game
+      CMP AL, 'R'
+      JE restart_game
+      CMP AL, 'r'
+      JE restart_game
+      RET
+
+      restart_game:
+            MOV AL, 1          ; mark to restart the game
+            MOV game_over, 0
+            RET
 DrawGameOver_proc ENDP
 
 UpdateWinnerText_proc proc NEAR

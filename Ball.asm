@@ -28,6 +28,7 @@ extrn paddleHeight:WORD
 .stack 100h
 
 .data
+
             WINDOW_WIDTH    DW      158     ; 320 pixels
             LEFT_WALL      DW       4      ; left wall
             WINDOW_HEIGHT   DW      200     ; 200 pixels
@@ -41,7 +42,7 @@ extrn paddleHeight:WORD
 
             ; LIVES INFO
             LIVES_LABEL         DB      'LIVES: ', '$'
-            first_player_lives  DB      3      ; number of lives for player 1
+            first_player_lives  DB      50     ; number of lives for player 1
             LIVES_STRING        DB      '3', '$'
 .code
 

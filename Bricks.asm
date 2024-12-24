@@ -1,6 +1,6 @@
 public DrawBricks_proc
 public CheckCollision_proc
-
+public score_1
 
 .model small
 .stack 100h
@@ -47,7 +47,6 @@ DrawBricks_proc PROC FAR
    MOV DI, offset brick_initial_y      ; set the row
    MOV BX, 0
 
-   MOV CL, 5
    CALL DisplayScore_proc
 
    draw_bricks:

@@ -8,6 +8,8 @@ public DRAW_BALL_REC
 public INIT_BALL_REC
 public MOVE_BALL2
 public UPDATE_POSITION2
+public second_player_lives
+
 
 ; extrn to bricks
 public BALL_X_REC
@@ -30,14 +32,20 @@ extrn paddleHeight2:WORD
             LEFT_WALL       DW      165      ; left wall
             WINDOW_HEIGHT   DW      200     ; 200 pixels
             WINDOW_BOUNDS   DW      0       ; pre check the walls
+
             BALL_X_REC          DW      231     ; X position of the ball
             BALL_Y_REC          DW      100     ; Y position of the ball
             BALL_SIZE_REC       DW      4     ; Size of the ball (pixels width and height)
             BALL_VELOCITY_X2 DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y2 DW      4      ; positive -> go down // negative -> go up
+
             CEIL            DW      4      ; top wall
 
-            
+
+            ; LIVES INFO
+            LIVES_LABEL         DB      'LIVES: ', '$'
+            second_player_lives  DB      50      ; number of lives for player 1
+            LIVES_STRING        DB      '3', '$'
 
 .code
 
@@ -102,6 +110,7 @@ CLEAR_BALL_REC PROC FAR
         
             ; Ceil
             MOV      BX, CEIL      ; pre checking the ball collision with safety space
+
             CMP      BALL_Y_REC, BX             ; comparing the curr Y - position with the first row of the window
             JB       NEG_VELOCITY_Y         ; isHitted? change the direction of Y - velocity
 
@@ -120,7 +129,7 @@ CLEAR_BALL_REC PROC FAR
             ADD      BX, AX                 ; BX holds the end of the paddle
             CMP      BALL_X_REC, BX             ; comparing the curr X - position with the end of the paddle
             JB      CMP_PADDLE_START       ; within range? check the start of the paddle
-             ; bounce back
+
             JMP NEXT_CHECK              ; continue checking other collisions
             
             CMP_PADDLE_START: ; we know that x <= paddleX2 + paddleWidth
@@ -128,7 +137,7 @@ CLEAR_BALL_REC PROC FAR
             ADD      BX, BALL_SIZE_REC
             CMP      BX, AX             ; comparing the curr X - position with the start of the paddle
             JA      CMP_PADDLE_Y           ; within range? check the Y - position of the paddle
-          
+
             JMP NEXT_CHECK              ; continue checking other collisions
             
             CMP_PADDLE_Y: ; we know that x <= paddleX2 + paddleWidth and x + BallWidth => paddleX2
@@ -137,8 +146,6 @@ CLEAR_BALL_REC PROC FAR
             CMP      BALL_Y_REC, AX             ; comparing the curr Y - position with the start of the paddle
             JAE       NEG_VELOCITY_Y         ; bounce back
             JMP NEXT_CHECK              ; continue checking other collisions
-
-           
             
             NEG_VELOCITY_X:
             NEG      BALL_VELOCITY_X2        ; positive -> go right // negative -> go left
@@ -153,6 +160,13 @@ CLEAR_BALL_REC PROC FAR
 
 
         EXIT:
+            DEC second_player_lives
+            CALL DISPLAY_LIVES           ; Display the remaining lives
+            CMP second_player_lives, 0
+            JNE RESET_BALL               ; if the player still has lives, reset the ball
+
+        RESET_BALL:
+
             CALL     CLEAR_BALL_REC             ; Clear the loser ball
             MOV      BALL_VELOCITY_X2, -5    ; Reset X - velocity ( dump value )
             MOV      BALL_VELOCITY_Y2, 4   ; Reset Y - velocity ( dump value )
@@ -200,8 +214,37 @@ CLEAR_BALL_REC PROC FAR
 
     DRAW_BALL_REC ENDP
 
-     
-    
+
+    DISPLAY_LIVES PROC NEAR
+        PUSH AX
+        PUSH BX
+        PUSH DX
+        PUSH DI
+        ; print the "LIVES" label
+        MOV AH, 02H               ; Set cursor position
+        MOV BH, 00H               ; Page number
+        MOV DH, 00H               ; Row
+        MOV DL, 71                ; Column
+        INT 10H
+
+        MOV AH, 09H
+        LEA DX, LIVES_LABEL
+        INT 21H
+
+        MOV AL, second_player_lives
+        ADD AL, 30H
+        MOV [LIVES_STRING], AL
+
+        MOV AH, 09H 
+        LEA DX, LIVES_STRING
+        INT 21H
+
+        POP DI
+        POP DX
+        POP BX
+        POP AX
+        RET 
+    DISPLAY_LIVES ENDP                                        
 
 
 end INIT_BALL_REC
