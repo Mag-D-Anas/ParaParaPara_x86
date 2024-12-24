@@ -57,6 +57,7 @@ extrn InitPaddle2:FAR
             CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
             CALL     CLEAR_BALL             ; Erase the ball to draw it in new position
             CALL     CheckCollision_proc    ; check bricks collision
+
             CALL     UPDATE_POSITION        ; update position of the ball
             CALL     DRAW_BALL              ; Draw the ball with moved ( X - Y ) initial position
 
