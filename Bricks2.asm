@@ -46,7 +46,7 @@ DrawBricks_proc2 PROC FAR
    MOV DI, offset brick_initial_y      ; set the row
    MOV BX, 0
 
- CALL DisplayScore_proc
+   CALL DisplayScore_proc2
 
    draw_bricks:
     MOV AL, brick_colors[BX]           ; set the color of the brick
@@ -207,8 +207,10 @@ CheckCollision_proc2 PROC FAR
 
         ; set the state of the brick to 1 and destroy the brick
          destroy:
+            CALL DisplayScore_proc2
             MOV state_of_bricks[BX], 1
             CALL DestroyBrick_proc2
+            JMP exit_collision
 
 
             next_column:
@@ -247,7 +249,7 @@ RET
 DestroyBrick_proc2 ENDP
               
               
-DisplayScore_proc PROC NEAR 
+DisplayScore_proc2 PROC NEAR 
     PUSH AX
     PUSH BX
     PUSH CX
@@ -332,7 +334,7 @@ print:
     POP BX
     POP AX     
 RET
-DisplayScore_proc ENDP
+DisplayScore_proc2 ENDP
 
 
 
