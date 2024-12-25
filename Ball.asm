@@ -18,6 +18,7 @@ public BALL_VELOCITY_X
 public BALL_VELOCITY_Y
 
 public first_player_lives
+public DISPLAY_LIVES
 
 ; import paddle parameters
 extrn paddleX:WORD
@@ -42,7 +43,7 @@ extrn paddleHeight:WORD
 
             ; LIVES INFO
             LIVES_LABEL         DB      'LIVES: ', '$'
-            first_player_lives  DB      10     ; number of lives for player 1
+            first_player_lives  DB      8     ; number of lives for player 1
             LIVES_STRING        DB      '3', '$'
 .code
 
@@ -211,11 +212,7 @@ CLEAR_BALL PROC FAR
     DRAW_BALL ENDP
 
      
-    DISPLAY_LIVES PROC NEAR
-        PUSH AX
-        PUSH BX
-        PUSH DX
-        PUSH DI
+    DISPLAY_LIVES PROC FAR
         ; print the "LIVES" label
         MOV AH, 02H               ; Set cursor position
         MOV BH, 00H               ; Page number
@@ -234,21 +231,17 @@ CLEAR_BALL PROC FAR
         MOV AH, 09H 
         LEA DX, LIVES_STRING
         INT 21H
-
-        POP DI
-        POP DX
-        POP BX
-        POP AX
+        
         RET 
     DISPLAY_LIVES ENDP            
     
 
-ResetBall proc
+ResetBall proc FAR
     mov BALL_X, 70
     mov BALL_Y, 100
     mov BALL_VELOCITY_X, -5
     mov BALL_VELOCITY_Y, 4
-    mov first_player_lives, 10
+    mov first_player_lives, 8
     ret
 ResetBall endp
 end INIT_BALL

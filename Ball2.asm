@@ -11,6 +11,7 @@ public UPDATE_POSITION2
 public ResetBall2
 
 public second_player_lives
+public DISPLAY_LIVES2
 
 ; extrn to bricks
 public BALL_X_REC
@@ -42,7 +43,7 @@ extrn paddleHeight2:WORD
 
             ; LIVES INFO
             LIVES_LABEL         DB      'LIVES: ', '$'
-            second_player_lives  DB      10      ; number of lives for player 1
+            second_player_lives  DB      8      ; number of lives for player 1
             LIVES_STRING        DB      '3', '$'
 
 
@@ -52,7 +53,7 @@ extrn paddleHeight2:WORD
             MOV      AX, @DATA
             MOV      DS, AX
 
-            CALL DISPLAY_LIVES
+            CALL DISPLAY_LIVES2
             RET
     INIT_BALL_REC ENDP
 
@@ -164,7 +165,7 @@ CLEAR_BALL_REC PROC FAR
        
         EXIT:
             DEC second_player_lives
-            CALL DISPLAY_LIVES           ; Display the remaining lives
+            CALL DISPLAY_LIVES2           ; Display the remaining lives
             CMP second_player_lives, 0
             JNE RESET_BALL               ; if the player still has lives, reset the ball
 
@@ -217,11 +218,7 @@ CLEAR_BALL_REC PROC FAR
 
     DRAW_BALL_REC ENDP
 
-     DISPLAY_LIVES PROC NEAR
-        PUSH AX
-        PUSH BX
-        PUSH DX
-        PUSH DI
+     DISPLAY_LIVES2 PROC FAR
         ; print the "LIVES" label
         MOV AH, 02H               ; Set cursor position
         MOV BH, 00H               ; Page number
@@ -241,12 +238,8 @@ CLEAR_BALL_REC PROC FAR
         LEA DX, LIVES_STRING
         INT 21H
 
-        POP DI
-        POP DX
-        POP BX
-        POP AX
         RET 
-    DISPLAY_LIVES ENDP                                        
+    DISPLAY_LIVES2 ENDP                                        
 
 
 ResetBall2 proc
@@ -254,7 +247,7 @@ ResetBall2 proc
     mov BALL_Y_REC, 100
     mov BALL_VELOCITY_X2, -5
     mov BALL_VELOCITY_Y2, 4
-    mov second_player_lives, 10
+    mov second_player_lives, 8
     ret
 ResetBall2 endp
 
