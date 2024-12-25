@@ -13,7 +13,7 @@ output=openglpp
 mount C C:\\Users\\tasne\\OneDrive\\Desktop\\BrickBreaker\\ParaParaPara_x86
 C:
 tasm /m2 *.asm
-link Menu.obj main.obj Ball2.obj Ball.obj Bricks.obj Bricks2.obj Paddle.obj Paddle2.obj Multi.obj send.obj ;
+link Menu.obj main.obj Ball2.obj Ball.obj Bricks.obj Bricks2.obj Paddle.obj Paddle2.obj Multi.obj Send.obj ;
 """
 
 filedata += "\nMenu.exe"
