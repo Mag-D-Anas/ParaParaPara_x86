@@ -34,15 +34,16 @@ extrn paddleHeight2:WORD
             WINDOW_BOUNDS   DW      0       ; pre check the walls
             BALL_X_REC          DW      231     ; X position of the ball
             BALL_Y_REC          DW      100     ; Y position of the ball
-            BALL_SIZE_REC       DW      4     ; Size of the ball (pixels width and height)
+            BALL_SIZE_REC       DW      5     ; Size of the ball (pixels width and height)
             BALL_VELOCITY_X2 DW      -5      ; velocity of incrementing the ball starting position
             BALL_VELOCITY_Y2 DW      4      ; positive -> go down // negative -> go up
-            CEIL            DW      4      ; top wall
+            CEIL            DW      15     ; top wall
 
             ; LIVES INFO
             LIVES_LABEL         DB      'LIVES: ', '$'
-            second_player_lives  DB      3      ; number of lives for player 1
+            second_player_lives  DB      20      ; number of lives for player 1
             LIVES_STRING        DB      '3', '$'
+
 
 .code
 
@@ -224,7 +225,7 @@ CLEAR_BALL_REC PROC FAR
         MOV AH, 02H               ; Set cursor position
         MOV BH, 00H               ; Page number
         MOV DH, 00H               ; Row
-        MOV DL, 71                ; Column
+        MOV DL, 60                ; Column
         INT 10H
 
         MOV AH, 09H

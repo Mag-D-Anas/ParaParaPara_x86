@@ -43,6 +43,11 @@ extrn COM_INIT:FAR
 extrn SendStartFlag:FAR
 extrn WaitForRec:FAR
 
+extrn score_1:byte
+extrn score_2:byte      
+
+extrn first_player_lives:byte
+extrn second_player_lives:byte
 
 
 .model small
@@ -55,6 +60,12 @@ extrn WaitForRec:FAR
       vertical_line_height DW 200
       vertical_line_width  DW 1
       otherReady DB 0
+
+      game_over       DB      0     ; 0 - game is running, 1 - game is over
+      game_over_text  DB      'GAME OVER', '$'	; Game over menu title
+      winner_text     DB      'You Won', '$'
+      loser_text     DB       'You Lost', '$'
+      winner_index    DB       0	 ; the index of the winner => 1 for player 1, 2 for player 2
 .code
   GAME PROC FAR
       mov AX, @DATA
@@ -74,8 +85,14 @@ extrn WaitForRec:FAR
       CALL SendStartFlag
       CALL WaitForRec
 
+      MOV game_over, 0
 
       time_loop:
+            ; check if the game is over before repeating the loop
+            CALL     checkWin_proc
+            CMP      game_over, 1
+            JE       show_game_over
+      
             CALL     DrawVerticalLine_proc
             ; Paddle 1
             CALL     CheckInput   ; Check for user input
@@ -118,10 +135,115 @@ extrn WaitForRec:FAR
 
 
             JMP      time_loop              ; REPEAT TO INFINITY
+
+    show_game_over:
+             CALL DrawGameOver_proc
+             JMP  time_loop
     EXITPROG:      
             mov      ah, 4Ch
             int      21h
     GAME ENDP
+
+    
+; check win and loss
+; compare 2 lives => if 0 => loss and display loss screen 
+; if win => display win screen
+; win when a destroy all the bricks => when score equals 80
+checkWin_proc PROC
+      ; TODO: game over logic
+      CMP score_1, 32
+      JE set_winner_1
+      CMP score_2, 32
+      JE set_winner_2
+
+      CMP first_player_lives, 0
+      JE set_winner_2
+      CMP second_player_lives, 0
+      JE set_winner_1
+
+      JMP exit
+
+      set_winner_1:
+           MOV winner_index, 1
+           JMP set_game_over
+
+      set_winner_2:
+            MOV winner_index, 2
+      
+      set_game_over :
+            MOV game_over, 1
+            CALL DrawGameOver_proc
+      exit:
+            RET
+checkWin_proc ENDP
+
+
+      DrawGameOver_proc PROC NEAR
+            CALL ClearScreen_proc
+      
+            ; SHOW GAME OVER TITLE
+            MOV AH, 02H
+            MOV BH, 00H
+            MOV DH, 04H
+            MOV DL, 04H
+            INT 10H
+
+            MOV AH, 09H
+            LEA DX, game_over_text
+            INT 21H
+
+            ; shows the winner
+            MOV AH, 02H
+            MOV BH, 00H
+            MOV DH, 06H
+            MOV DL, 04H
+            INT 10H
+
+            CMP winner_index, 1
+            JE show_win
+            CMP winner_index, 2
+            JE show_loss
+            JMP skip
+
+
+      show_win:
+            MOV AH, 09H
+            LEA DX, winner_text
+            INT 21H
+            JMP skip
+
+      show_loss:
+            MOV AH, 09H
+            LEA DX, loser_text
+            INT 21H
+            JMP skip
+
+      skip:
+            ; wait for a key press
+            MOV AH, 00H
+            INT 16H
+
+      DrawGameOver_proc ENDP
+
+      ; UpdateWinnerText_proc proc NEAR
+      ;       MOV AL, winner_index            ; get the winner index
+      ;       ADD AL, 30H
+      ;       MOV [winner_text + 7], AL   ; update the text with the winner index;
+      ; RET
+      ; UpdateWinnerText_proc ENDP
+
+      ClearScreen_proc proc NEAR
+            MOV AH, 00h
+            MOV AL, 13h
+            INT 10h
+
+            MOV AH, 0BH
+            MOV BH, 00h
+            MOV BL, 00H
+            INT 10H
+      RET
+      ClearScreen_proc ENDP
+
 
     DrawVerticalLine_proc PROC
     PUSH DX
