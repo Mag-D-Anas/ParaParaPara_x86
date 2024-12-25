@@ -13,7 +13,7 @@ public paddleHeight2
 public CheckInput2
 extrn prevPaddleX:WORD
 extrn paddleX:WORD
-
+extrn stopFlag:BYTE
 .MODEL SMALL
 .STACK 100h
 
@@ -83,14 +83,22 @@ CheckInput2 PROC FAR
    
     mov dx , 03F8H
         in al , dx 
-      
+
+    cmp al, 'e'
+    je escape2
 
     CMP al, 'l'        ; Left arrow key
     JE MoveLeft2
     CMP al, 'r'        ; Right arrow key
     JE MoveRight2
+
+
 NoKey2:
     RET
+
+escape2:
+mov stopFlag, 1
+RET
 
 MoveLeft2:
     mov ax, paddleX2

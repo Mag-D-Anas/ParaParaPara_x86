@@ -1,5 +1,5 @@
 PUBLIC GAME
-
+public stopFlag
 ; Bricks 1
 extrn DrawBricks_proc:FAR
 extrn CheckCollision_proc:FAR
@@ -54,22 +54,29 @@ extrn second_player_lives:byte
 .stack 100h
 
 .data
-      PREV_MS         DB      0       ; needed for fps movements
-      vertical_line_x DW      159
-      vertical_line_y DW      0
-      vertical_line_height DW 200
-      vertical_line_width  DW 1
-      otherReady DB 0
-
-      game_over       DB      0     ; 0 - game is running, 1 - game is over
-      game_over_text  DB      'GAME OVER', '$'	; Game over menu title
-      winner_text     DB      'You Won', '$'
-      loser_text     DB       'You Lost', '$'
-      winner_index    DB       0	 ; the index of the winner => 1 for player 1, 2 for player 2
+    PREV_MS         DB      0       ; needed for fps movements
+    vertical_line_x DW      159
+    vertical_line_y DW      0
+    vertical_line_height DW 200
+    vertical_line_width  DW 1
+    otherReady DB 0
+    stopFlag DB 0
+    SAVED_CS DW 0        ; Variable to store Code Segment
+    SAVED_IP DW 0        ; Variable to store Instruction Pointer
+    game_over       DB      0     ; 0 - game is running, 1 - game is over
+    game_over_text  DB      'GAME OVER', '$'	; Game over menu title
+    winner_text     DB      'You Won', '$'
+    loser_text     DB       'You Lost', '$'
+    winner_index    DB       0	 ; the index of the winner => 1 for player 1, 2 for player 2
 .code
   GAME PROC FAR
       mov AX, @DATA
       mov DS, AX
+
+      pop ax
+      mov SAVED_CS, ax
+      pop ax
+        mov SAVED_IP, ax
   
       mov      ah, 00h                ; Set the config to video mode
       mov      al, 13h                ; Chosen video mode
@@ -88,6 +95,8 @@ extrn second_player_lives:byte
       MOV game_over, 0
 
       time_loop:
+        cmp stopFlag, 1
+        je EXITPROG 
             ; check if the game is over before repeating the loop
             CALL     checkWin_proc
             CMP      game_over, 1
@@ -138,10 +147,15 @@ extrn second_player_lives:byte
 
     show_game_over:
              CALL DrawGameOver_proc
-             JMP  time_loop
     EXITPROG:      
-            mov      ah, 4Ch
-            int      21h
+            mov ax, SAVED_IP
+            push ax
+
+            mov ax, SAVED_CS
+            push ax
+            mov stopFlag , 0
+
+            ret  
     GAME ENDP
 
     
@@ -222,6 +236,8 @@ checkWin_proc ENDP
             ; wait for a key press
             MOV AH, 00H
             INT 16H
+
+            RET
 
       DrawGameOver_proc ENDP
 
