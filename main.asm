@@ -1,5 +1,5 @@
 PUBLIC GAME
-
+public stopFlag
 ; Bricks 1
 extrn DrawBricks_proc:FAR
 extrn CheckCollision_proc:FAR
@@ -42,6 +42,14 @@ extrn COM_INIT:FAR
 ; extrn RecCom:FAR
 extrn SendStartFlag:FAR
 extrn WaitForRec:FAR
+;;;////////////resert procedures
+extrn RESET_PADDLE1:FAR
+extrn RESET_PADDLE2:FAR
+extrn RESET_BALL1:FAR
+extrn RESET_BALL2:FAR
+extrn RESET_BRICKS1:FAR
+extrn RESET_BRICKS2:FAR
+
 
 
 
@@ -55,10 +63,18 @@ extrn WaitForRec:FAR
       vertical_line_height DW 200
       vertical_line_width  DW 1
       otherReady DB 0
+      stopFlag DB 0
+    SAVED_CS DW 0        ; Variable to store Code Segment
+    SAVED_IP DW 0        ; Variable to store Instruction Pointer
 .code
   GAME PROC FAR
       mov AX, @DATA
       mov DS, AX
+
+      pop ax
+      mov SAVED_CS, ax
+      pop ax
+        mov SAVED_IP, ax
   
       mov      ah, 00h                ; Set the config to video mode
       mov      al, 13h                ; Chosen video mode
@@ -74,9 +90,11 @@ extrn WaitForRec:FAR
       CALL SendStartFlag
       CALL WaitForRec
 
-
       time_loop:
-            CALL     DrawVerticalLine_proc
+            cmp stopFlag, 1
+            je EXITPROG 
+      CALL     DrawVerticalLine_proc
+      
             ; Paddle 1
             CALL     CheckInput   ; Check for user input
             CALL     CheckInput2   ; Check for user input
@@ -93,15 +111,7 @@ extrn WaitForRec:FAR
             CMP      PREV_MS, DL            ; Compare the curr ms with the previous one
             JE       time_loop              ; if equal then hold the program 1ms 
             MOV      PREV_MS, DL            ; Update timne
-            
-            ; mov dx , 3FDH		; Line Status Register
-            ; in al , dx 
-            ; AND al , 1
-            ; JNZ rec_first
-            ;CALL SendStartFlag
-            ; CALL     SendCom
-            ; CALL     RecCom
-            ;rec_first:
+        
 
             CALL     MOVE_BALL              ; check Collisions (for now, the walls only)
             CALL     MOVE_BALL2              ; check Collisions (for now, the walls only)
@@ -118,9 +128,17 @@ extrn WaitForRec:FAR
 
 
             JMP      time_loop              ; REPEAT TO INFINITY
-    EXITPROG:      
-            mov      ah, 4Ch
-            int      21h
+    EXITPROG:
+    CALL RESET_GAME
+     
+        mov ax, SAVED_IP
+        push ax
+
+           mov ax, SAVED_CS
+        push ax
+        mov stopFlag , 0
+
+         ret  
     GAME ENDP
 
     DrawVerticalLine_proc PROC
@@ -153,5 +171,15 @@ extrn WaitForRec:FAR
     POP CX
 RET
 DrawVerticalLine_proc ENDP
+
+RESET_GAME PROC
+    CALL RESET_PADDLE1
+    CALL RESET_PADDLE2
+    CALL RESET_BALL1
+    CALL RESET_BALL2
+    CALL RESET_BRICKS1
+    CALL RESET_BRICKS2
+    RET
+RESET_GAME ENDP
 
     END GAME

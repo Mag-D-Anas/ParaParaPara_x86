@@ -12,6 +12,10 @@ public prevPaddleX
 public paddleY
 public paddleWidth
 public paddleHeight
+PUBLIC RESET_PADDLE1
+
+extrn stopFlag:BYTE
+
 
 .MODEL SMALL
 .STACK 100h
@@ -32,6 +36,8 @@ rightWall EQU 158     ; Right wall position
 paddleSpeed DW 5    ; Speed of the paddle (pixels/move)
 paddleColor DB 15          ; Paddle color (white in mode 13h)
 paddleBgColor DB 0         ; Background color (black in mode 13h)
+
+
 
 .CODE
 ; MAIN PROC FAR
@@ -80,12 +86,36 @@ CheckInput PROC FAR
     ; Get the key
     MOV AH, 00h
     INT 16h
+   cmp al, 1Bh
+   je escape
+
+
     CMP AH, 4Bh        ; Left arrow key
     JE MoveLeft
     CMP AH, 4Dh        ; Right arrow key
     JE MoveRight
 NoKey:
     RET
+escape:
+    mov stopFlag, 1
+     push ax
+        push dx
+        waitEsc:
+        mov dx , 3FDH		; Line Status Register
+        In al , dx 			;Read Line Status
+        AND al , 00100000b
+        JZ waitEsc
+
+           mov dx , 3F8H		; Transmit data register
+        mov al, 'e'
+        out dx , al
+        pop dx
+        pop ax
+
+    RET
+
+
+
 
 MoveLeft:
         ;send LEFT 'l'
@@ -213,5 +243,12 @@ DrawPixel:
     JL DrawRow         ; If not, continue drawing rows
     RET
 DrawRectangle ENDP
+
+RESET_PADDLE1 PROC
+    mov ax, 70
+    mov paddleX, ax
+    mov prevPaddleX, ax
+    RET
+RESET_PADDLE1 ENDP
 
 END InitPaddle

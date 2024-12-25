@@ -1,6 +1,6 @@
 public DrawBricks_proc
 public CheckCollision_proc
-
+PUBLIC RESET_BRICKS1
 
 .model small
 .stack 100h
@@ -242,7 +242,18 @@ RET
 DestroyBrick_proc ENDP
               
 
-
+RESET_BRICKS1   PROC
+    MOV AX, 0
+    MOV SI, offset state_of_bricks
+    MOV CX, ROW_COUNT * COLUMN_COUNT
+    MOV DI, 0
+    REPEAT:
+        MOV [SI], DI
+        ADD SI, 1
+        INC DI
+        LOOP REPEAT
+    RET
+RESET_BRICKS1 ENDP
 
 
 

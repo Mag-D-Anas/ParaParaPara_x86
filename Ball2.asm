@@ -8,7 +8,7 @@ public DRAW_BALL_REC
 public INIT_BALL_REC
 public MOVE_BALL2
 public UPDATE_POSITION2
-
+PUBLIC RESET_BALL2
 ; extrn to bricks
 public BALL_X_REC
 public BALL_Y_REC
@@ -199,7 +199,15 @@ CLEAR_BALL_REC PROC FAR
     DRAW_BALL_REC ENDP
 
      
-    
+         
+RESET_BALL2 PROC FAR
+            MOV BALL_X_REC       ,      231     ; X position of the ball
+            MOV BALL_Y_REC       ,      100     ; Y position of the ball
+            MOV BALL_SIZE_REC    ,      4     ; Size of the ball (pixels width and height)
+            MOV BALL_VELOCITY_X2 ,   -5      ; velocity of incrementing the ball starting position
+            MOV BALL_VELOCITY_Y2 ,   4      ; positi
+    RET
+RESET_BALL2 ENDP
 
 
 end INIT_BALL_REC

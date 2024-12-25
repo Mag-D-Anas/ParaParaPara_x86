@@ -21,9 +21,11 @@ MENU PROC
     mov ds,ax
     xor ax,ax
 
+  
+
 start:
 
- mov ah, 0              
+   mov ah, 0              
     mov al, 13              
     int 10h 
    

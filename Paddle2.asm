@@ -11,9 +11,10 @@ public paddleY2
 public paddleWidth2
 public paddleHeight2
 public CheckInput2
+PUBLIC RESET_PADDLE2
 extrn prevPaddleX:WORD
 extrn paddleX:WORD
-
+extrn stopFlag:BYTE
 .MODEL SMALL
 .STACK 100h
 
@@ -83,14 +84,22 @@ CheckInput2 PROC FAR
    
     mov dx , 03F8H
         in al , dx 
-      
+
+    cmp al, 'e'
+    je escape2
 
     CMP al, 'l'        ; Left arrow key
     JE MoveLeft2
     CMP al, 'r'        ; Right arrow key
     JE MoveRight2
+
+
 NoKey2:
     RET
+
+escape2:
+mov stopFlag, 1
+RET
 
 MoveLeft2:
     mov ax, paddleX2
@@ -191,5 +200,15 @@ DrawPixel:
     JL DrawRow         ; If not, continue drawing rows
     RET
 DrawRectangle ENDP
+
+RESET_PADDLE2 PROC
+    mov ax, 231
+    mov paddleX2, ax
+    mov ax, 180
+    mov paddleY2, ax
+    mov ax, 231
+    mov prevPaddleX2, ax
+    RET 
+RESET_PADDLE2 ENDP
 
 END InitPaddle2
