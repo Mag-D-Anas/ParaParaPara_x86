@@ -2,7 +2,7 @@
 extrn GAME:FAR
 extrn CHAT:FAR
 
-.MODEL SMALL
+.model medium
 .STACK 64
 .DATA
     ; All displayed lines
@@ -10,7 +10,7 @@ extrn CHAT:FAR
     text_main_menu_select_options db 'PLEASE SELECT OPTIONS$'
     text_main_menu_play_game db 'PRESS ENTER TO PLAY GAME$'
     text_main_menu_chat db 'PRESS C TO CHAT $'
-    text_main_menu_exit db 'PRESS esc TO EXIT $'
+    text_main_menu_exit db 'PRESS ESC TO EXIT $'
     
     MAIN_MENU_POS equ 0505h
 

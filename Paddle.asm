@@ -13,10 +13,12 @@ public paddleY
 public paddleWidth
 public paddleHeight
 
+public ResetPaddle
+
 extrn stopFlag:BYTE
 
 
-.MODEL SMALL
+.model medium
 .STACK 100h
 
 .DATA
@@ -243,5 +245,15 @@ DrawPixel:
     RET
 DrawRectangle ENDP
 
+
+ResetPaddle PROC
+    mov ax, 70
+    mov paddleX, ax
+    mov ax, 70
+    mov prevPaddleX, ax
+    mov ax, 5
+    mov paddleSpeed, ax
+    RET
+ResetPaddle ENDP
 
 END InitPaddle

@@ -8,6 +8,7 @@ public DRAW_BALL_REC
 public INIT_BALL_REC
 public MOVE_BALL2
 public UPDATE_POSITION2
+public ResetBall2
 
 public second_player_lives
 
@@ -24,7 +25,7 @@ extrn paddleY2:WORD
 extrn paddleWidth2:WORD
 extrn paddleHeight2:WORD
 
-.model small
+.model medium
 .stack 100h
 
 .data
@@ -41,7 +42,7 @@ extrn paddleHeight2:WORD
 
             ; LIVES INFO
             LIVES_LABEL         DB      'LIVES: ', '$'
-            second_player_lives  DB      4      ; number of lives for player 1
+            second_player_lives  DB      10      ; number of lives for player 1
             LIVES_STRING        DB      '3', '$'
 
 
@@ -247,7 +248,15 @@ CLEAR_BALL_REC PROC FAR
         RET 
     DISPLAY_LIVES ENDP                                        
 
-    
+
+ResetBall2 proc
+    mov BALL_X_REC, 231
+    mov BALL_Y_REC, 100
+    mov BALL_VELOCITY_X2, -5
+    mov BALL_VELOCITY_Y2, 4
+    mov second_player_lives, 10
+    ret
+ResetBall2 endp
 
 
 end INIT_BALL_REC

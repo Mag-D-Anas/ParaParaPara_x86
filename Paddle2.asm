@@ -11,10 +11,13 @@ public paddleY2
 public paddleWidth2
 public paddleHeight2
 public CheckInput2
+public ResetPaddle2
+
+
 extrn prevPaddleX:WORD
 extrn paddleX:WORD
 extrn stopFlag:BYTE
-.MODEL SMALL
+.model medium
 .STACK 100h
 
 .DATA
@@ -199,5 +202,15 @@ DrawPixel:
     JL DrawRow         ; If not, continue drawing rows
     RET
 DrawRectangle ENDP
+
+ResetPaddle2 PROC
+    mov ax, 231
+    mov paddleX2, ax
+    mov ax, 231
+    mov prevPaddleX2, ax
+    mov ax, 5
+    mov paddleSpeed2, ax
+    RET
+ResetPaddle2 ENDP
 
 END InitPaddle2

@@ -1,9 +1,10 @@
 public DrawBricks_proc
 public CheckCollision_proc
- public score_1
+public ResetBricks
+public score_1
 
 
-.model small
+.model medium
 .stack 100h
 
 .DATA 
@@ -234,6 +235,18 @@ DestroyBrick_proc PROC NEAR
     CALL DrawBrick_proc
 RET
 DestroyBrick_proc ENDP
+
+
+ResetBricks PROC FAR
+    MOV SI, offset state_of_bricks
+    MOV CX, ROW_COUNT * COLUMN_COUNT
+
+    reset_bricks:
+    MOV [SI], 0
+    INC SI
+    LOOP reset_bricks     ; if SI < offset brick_initial_x + 8, continue the loop
+RET
+ResetBricks ENDP
               
               
 ; DisplayScore_proc PROC FAR 

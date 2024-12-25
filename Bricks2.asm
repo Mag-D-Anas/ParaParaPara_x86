@@ -1,8 +1,9 @@
 public DrawBricks_proc2
 public CheckCollision_proc2
+public ResetBricks2
 public score_2
 
-.model small
+.model medium
 .stack 100h
 
 .data
@@ -18,7 +19,7 @@ COLUMN_COUNT EQU 8    ; number of columns
 
 score_2 DB 0
 
-state_of_bricks DB ROW_COUNT * COLUMN_COUNT DUP(0)
+state_of_bricks2 DB ROW_COUNT * COLUMN_COUNT DUP(0)
 
 
 ; SCORE INFO
@@ -126,7 +127,7 @@ DrawBrick_proc2 ENDP
 ;  - DX and BX: Initial Y and X positions of the bricks.
 ;  - AX: Ball position and size.
 ; Outputs:
-;  - Updates the state_of_bricks_row and state_of_bricks_col arrays.
+;  - Updates the state_of_bricks2_row and state_of_bricks2_col arrays.
 ; - Calls DestroyBrick_proc2 if a collision is detected.
 ;---------------------------------------
 
@@ -185,7 +186,7 @@ CheckCollision_proc2 PROC FAR
                 ADD AL, CH
                 MOV BL, AL           ; index of the brick in the state array
                 MOV BH, 0
-                CMP state_of_bricks[BX], 1   ; check if the brick is already hit
+                CMP state_of_bricks2[BX], 1   ; check if the brick is already hit
                 JE next_column               ; if hit with a black brick, continue   
                 NEG BALL_VELOCITY_Y2
                 JMP destroy                  ; destroy the brick 
@@ -197,7 +198,7 @@ CheckCollision_proc2 PROC FAR
                 ADD AL, CH
                 MOV BL, AL    ; index of the brick in the state array
                 MOV BH, 0
-                CMP state_of_bricks[BX], 1
+                CMP state_of_bricks2[BX], 1
                 JE next_column
                 NEG BALL_VELOCITY_X2
                 JMP destroy
@@ -206,7 +207,7 @@ CheckCollision_proc2 PROC FAR
          destroy:
             ; CALL DisplayScore_proc2     ; display the score
             INC score_2
-            MOV state_of_bricks[BX], 1
+            MOV state_of_bricks2[BX], 1
             CALL DestroyBrick_proc2
             JMP exit_collision
 
@@ -241,6 +242,17 @@ DestroyBrick_proc2 PROC NEAR
 RET
 DestroyBrick_proc2 ENDP
 
+
+ResetBricks2 PROC FAR
+    MOV SI, offset state_of_bricks2
+    MOV CX, ROW_COUNT * COLUMN_COUNT
+
+    reset_bricks2:
+    MOV [SI], 0
+    INC SI
+    LOOP reset_bricks2     ; if SI < offset brick_initial_x + 8, continue the loop
+RET
+ResetBricks2 ENDP
               
 ; DisplayScore_proc2 PROC NEAR 
 ;     PUSH AX
