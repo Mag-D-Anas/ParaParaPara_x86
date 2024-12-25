@@ -50,7 +50,15 @@ extrn first_player_lives:byte
 extrn second_player_lives:byte
 
 
-.model small
+extrn ResetBricks:FAR
+extrn ResetBricks2:FAR
+extrn ResetBall:FAR
+extrn ResetBall2:FAR
+extrn ResetPaddle:FAR
+extrn ResetPaddle2:FAR
+
+
+.model medium
 .stack 100h
 
 .data
@@ -67,16 +75,17 @@ extrn second_player_lives:byte
     game_over_text  DB      'GAME OVER', '$'	; Game over menu title
     winner_text     DB      'You Won', '$'
     loser_text     DB       'You Lost', '$'
+    helper_msg      DB      'Press ESC to go back to main menu', '$'
     winner_index    DB       0	 ; the index of the winner => 1 for player 1, 2 for player 2
 .code
   GAME PROC FAR
       mov AX, @DATA
       mov DS, AX
 
-      pop ax
-      mov SAVED_CS, ax
-      pop ax
-        mov SAVED_IP, ax
+    ;   pop ax
+    ;   mov SAVED_CS, ax
+    ;   pop ax
+    ;     mov SAVED_IP, ax
   
       mov      ah, 00h                ; Set the config to video mode
       mov      al, 13h                ; Chosen video mode
@@ -148,12 +157,22 @@ extrn second_player_lives:byte
     show_game_over:
              CALL DrawGameOver_proc
     EXITPROG:      
-            mov ax, SAVED_IP
-            push ax
+            ; mov ax, SAVED_IP
+            ; push ax
 
-            mov ax, SAVED_CS
-            push ax
+            ; mov ax, SAVED_CS
+            ; push ax
             mov stopFlag , 0
+            CALL ResetBricks
+            CALL ResetBricks2
+            CALL ResetBall
+            CALL ResetBall2
+            CALL ResetPaddle
+            CALL ResetPaddle2
+            mov score_1, 0
+            mov score_2, 0
+            mov winner_index, 0
+            mov game_over, 0
 
             ret  
     GAME ENDP
@@ -217,25 +236,39 @@ checkWin_proc ENDP
             JE show_win
             CMP winner_index, 2
             JE show_loss
-            JMP skip
+            JMP showhelper
 
 
       show_win:
             MOV AH, 09H
             LEA DX, winner_text
             INT 21H
-            JMP skip
+            JMP showhelper
 
       show_loss:
             MOV AH, 09H
             LEA DX, loser_text
             INT 21H
-            JMP skip
+            JMP showhelper
+
+        showhelper:
+            ; SHOW Helper message
+            MOV AH, 02H
+            MOV BH, 00H
+            MOV DH, 08H
+            MOV DL, 04H
+            INT 10H
+
+            MOV AH, 09H
+            LEA DX, helper_msg
+            INT 21H
 
       skip:
             ; wait for a key press
             MOV AH, 00H
             INT 16H
+            cmp al, 1Bh
+            jne skip
 
             RET
 

@@ -8,6 +8,7 @@ public CLEAR_BALL
 public DRAW_BALL
 public UPDATE_POSITION
 public INIT_BALL
+public ResetBall
 
 ; extrn to bricks
 public BALL_X
@@ -24,7 +25,7 @@ extrn paddleY:WORD
 extrn paddleWidth:WORD
 extrn paddleHeight:WORD
 
-.model small
+.model medium
 .stack 100h
 
 .data
@@ -41,7 +42,7 @@ extrn paddleHeight:WORD
 
             ; LIVES INFO
             LIVES_LABEL         DB      'LIVES: ', '$'
-            first_player_lives  DB      4     ; number of lives for player 1
+            first_player_lives  DB      10     ; number of lives for player 1
             LIVES_STRING        DB      '3', '$'
 .code
 
@@ -242,5 +243,12 @@ CLEAR_BALL PROC FAR
     DISPLAY_LIVES ENDP            
     
 
-
+ResetBall proc
+    mov BALL_X, 70
+    mov BALL_Y, 100
+    mov BALL_VELOCITY_X, -5
+    mov BALL_VELOCITY_Y, 4
+    mov first_player_lives, 10
+    ret
+ResetBall endp
 end INIT_BALL

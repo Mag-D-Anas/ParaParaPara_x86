@@ -15,7 +15,7 @@ public COM_INIT
 public SendStartFlag
 public WaitForRec
 
-.MODEL small
+.model medium
 .STACK 100h
 .code
 
