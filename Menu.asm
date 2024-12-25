@@ -9,6 +9,7 @@ extrn GAME_SINGLE:FAR
     text_main_menu_title db 'WELCOME TO BRICK BREAKER$'
     text_main_menu_select_options db 'PLEASE SELECT OPTIONS$'
     text_main_menu_play_game db 'PRESS ENTER TO PLAY GAME$'
+    text_main_menu_play_sgame db 'PRESS S TO PLAY SINGLE GAME$'
     text_main_menu_chat db 'PRESS C TO CHAT $'
     text_main_menu_exit db 'PRESS ESC TO EXIT $'
     
@@ -36,10 +37,17 @@ start:
     cmp key_pressed, 1Ch  ; Check if Enter key is pressed
     je callGame
 
+    cmp key_pressed, 53h  ; Check if S key is pressed
+    je callGameSingle
+
     cmp key_pressed, 2Eh  ; Check if 'C' key is pressed
     je callChat
 
     callGame:
+        call GAME
+        jmp start
+
+    callGameSingle:
         call GAME_SINGLE
         jmp start
 
@@ -76,6 +84,15 @@ MainMenu_proc proc NEAR
     call MoveCursor_proc
     push dx
     lea dx,text_main_menu_play_game
+    call DisplayString_proc
+    pop dx
+
+    inc dh
+    inc dh
+
+    call MoveCursor_proc
+    push dx
+    lea dx,text_main_menu_play_sgame
     call DisplayString_proc
     pop dx
     
@@ -158,6 +175,8 @@ loopTillPressed:
     cmp ah, 17h        ; Check if 'I' key scan code
     je storeKey
     cmp ah, 1Ch        ; Check if Enter key scan code
+    je storeKey
+    cmp ah, 53h        ; Check if S key scan code
     je storeKey
     cmp ah, 2Eh        ; Check if 'C' key scan code
     je storeKey

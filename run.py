@@ -10,13 +10,13 @@ fullresolution=640x400
 windowresolution=640x400
 output=openglpp
 [autoexec]
-mount C D:\\LLLL\\ParaParaPara_x86
+mount C E:\\ParaParaPara_x86
 C:
-tasm /m2 mainSingle.asm
-link mainSingle.obj BallSingle.obj BricksSingle.obj PaddleSingle.obj;
+tasm /m2 *.asm
+link Menu.obj main.obj Ball2.obj Ball.obj Bricks.obj Bricks2.obj Paddle.obj Paddle2.obj Multi.obj Send.obj main3.obj Paddle3.obj Ball3.obj Bricks3.obj;
 """
 
-filedata += "\nmainSingle.exe"
+filedata += "\nMenu.exe"
 
 filedata1 = (
     filedata
@@ -40,8 +40,8 @@ with open("dosbox-x-generated1.conf", "w") as file:
 with open("dosbox-x-generated2.conf", "w") as file:
     file.write(filedata2)
 
-prog1 = ["C:\\Users\\USER\\OneDrive\\Desktop\\DOSBox-0.74-3\\DOSBox.exe", "-conf", "dosbox-x-generated1.conf"]
-prog2 = ["C:\\Users\\USER\\OneDrive\\Desktop\\DOSBox-0.74-3\\DOSBox.exe", "-conf", "dosbox-x-generated2.conf"]
+prog1 = ["C:\\Program Files (x86)\\DOSBox-0.74-3\\DOSBox.exe", "-conf", "dosbox-x-generated1.conf"]
+prog2 = ["C:\\Program Files (x86)\\DOSBox-0.74-3\\DOSBox.exe", "-conf", "dosbox-x-generated2.conf"]
 
 subprocess.Popen(prog1)
 sleep(2)
