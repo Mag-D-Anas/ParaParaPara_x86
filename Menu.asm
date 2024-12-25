@@ -1,7 +1,7 @@
 
 extrn GAME:FAR
 extrn CHAT:FAR
-
+extrn GAME_SINGLE:FAR
 .model medium
 .STACK 64
 .DATA
@@ -40,7 +40,7 @@ start:
     je callChat
 
     callGame:
-        call GAME
+        call GAME_SINGLE
         jmp start
 
     callChat:
