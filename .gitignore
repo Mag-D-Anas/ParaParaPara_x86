@@ -6,3 +6,4 @@
 *.OBJ
 *.COM
 .vscode
+*.py

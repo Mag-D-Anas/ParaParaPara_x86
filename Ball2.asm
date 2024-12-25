@@ -41,7 +41,7 @@ extrn paddleHeight2:WORD
 
             ; LIVES INFO
             LIVES_LABEL         DB      'LIVES: ', '$'
-            second_player_lives  DB      20      ; number of lives for player 1
+            second_player_lives  DB      4      ; number of lives for player 1
             LIVES_STRING        DB      '3', '$'
 
 
