@@ -6,5 +6,4 @@
 *.OBJ
 *.COM
 .vscode
-*.py
 *.conf
