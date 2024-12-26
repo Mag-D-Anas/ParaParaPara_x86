@@ -7,7 +7,6 @@ extrn CHAT:FAR
 .DATA
     ; All displayed lines
     text_main_menu_title db 'WELCOME TO BRICK BREAKER$'
-    text_main_menu_select_options db 'PLEASE SELECT OPTIONS$'
     text_main_menu_play_game db 'PRESS ENTER TO PLAY GAME$'
     text_main_menu_chat db 'PRESS C TO CHAT $'
     text_main_menu_exit db 'PRESS ESC TO EXIT $'
@@ -66,15 +65,6 @@ MainMenu_proc proc NEAR
     ;///////////// 
     call MoveCursor_proc
     push dx
-    lea dx,text_main_menu_select_options
-    call DisplayString_proc
-    pop dx
-
-    inc dh
-    inc dh
-
-    call MoveCursor_proc
-    push dx
     lea dx,text_main_menu_play_game
     call DisplayString_proc
     pop dx
@@ -130,7 +120,7 @@ print_char_colored:
     call MoveCursor_proc    
     mov ah, 09h        
     mov bh, 0          
-    mov bl, 0Eh        
+    mov bl, 06h        
     mov cx, 1          
     int 10h            
     inc dl           
