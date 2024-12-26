@@ -2,7 +2,6 @@
 ; DATE: 5 Dec 2024
 ; Paddle logic
 
-public CheckInput2
 public ClearPaddle2
 public DrawPaddle2
 public InitPaddle2
@@ -11,21 +10,27 @@ public paddleX2
 public paddleY2
 public paddleWidth2
 public paddleHeight2
+public CheckInput2
+public ResetPaddle2
 
-.MODEL SMALL
+
+extrn prevPaddleX:WORD
+extrn paddleX:WORD
+extrn stopFlag:BYTE
+.model medium
 .STACK 100h
 
 .DATA
-paddleX2 DW 230       ; Initial X position of the paddle
+paddleX2 DW 231       ; Initial X position of the paddle
 paddleY2 DW 180       ; Y position of the paddle
 prevPaddleX2 DW ?   ; Previous X position of the paddle
-paddleWidth2 DW 40    ; Width of the paddle
-paddleHeight2 DW 10   ; Height of the paddle
+paddleWidth2 DW 30    ; Width of the paddle
+paddleHeight2 DW 5   ; Height of the paddle
 
 
 screenHeight2 EQU 200  ; Screen height in pixels
-leftWall2 EQU 160        ; Left wall position
-rightWall2 EQU 320     ; Right wall position
+leftWall2 EQU 165        ; Left wall position
+rightWall2 EQU 318     ; Right wall position
 
 
 paddleSpeed2 DW 5    ; Speed of the paddle (pixels/move)
@@ -69,22 +74,34 @@ InitPaddle2 PROC FAR
     mov prevPaddleX2, ax
     RET
 InitPaddle2 ENDP
-; Subroutine to check keyboard input
+; ; Subroutine to check keyboard input
 CheckInput2 PROC FAR
     ; Check for key press
-    MOV AH, 01h
-    INT 16h
-    JZ NoKey2           ; No key pressed
+     mov dx , 3FDH		; Line Status Register
+        in al , dx 
+        AND al , 1
+        JZ NoKey2
 
     ; Get the key
-    MOV AH, 00h
-    INT 16h
-    CMP AH, 4Bh        ; Left arrow key
+   
+    mov dx , 03F8H
+        in al , dx 
+
+    cmp al, 'e'
+    je escape2
+
+    CMP al, 'l'        ; Left arrow key
     JE MoveLeft2
-    CMP AH, 4Dh        ; Right arrow key
+    CMP al, 'r'        ; Right arrow key
     JE MoveRight2
+
+
 NoKey2:
     RET
+
+escape2:
+mov stopFlag, 1
+RET
 
 MoveLeft2:
     mov ax, paddleX2
@@ -118,6 +135,13 @@ CheckInput2 ENDP
 
 ClearPaddle2 PROC FAR
     mov ax, prevPaddleX2
+    ;add ax, 161
+    ;mov prevPaddleX2, ax
+    
+    mov bx, paddleX2
+    ;add bx, 161
+    ;mov paddleX2, bx
+
     cmp ax, paddleX2
     je NoClear ; no move, no clear
     jb ClearLeft ; move right, clear left side
@@ -178,5 +202,15 @@ DrawPixel:
     JL DrawRow         ; If not, continue drawing rows
     RET
 DrawRectangle ENDP
+
+ResetPaddle2 PROC
+    mov ax, 231
+    mov paddleX2, ax
+    mov ax, 231
+    mov prevPaddleX2, ax
+    mov ax, 5
+    mov paddleSpeed2, ax
+    RET
+ResetPaddle2 ENDP
 
 END InitPaddle2

@@ -18,11 +18,15 @@
         "-c",
         "TASM.EXE /m2 Bricks.asm",
         "-c",
+        "TASM.EXE /m2 Bricks2.asm",
+        "-c",
         "TASM.EXE /m2 Ball.asm",
+        "-c",
+        "TASM.EXE /m2 Ball2.asm",
         "-c",
         "TASM.EXE /m2 main.asm",
         "-c",
-        "LINK.EXE main.obj Ball.obj Bricks.obj Paddle.obj Paddle2.obj",
+        "LINK.EXE main.obj Ball2.obj Ball.obj Bricks.obj Bricks2.obj Paddle.obj Paddle2.obj",
 
         "-c",
         "main.exe"

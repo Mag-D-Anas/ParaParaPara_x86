@@ -1,8 +1,10 @@
 *.exe
 *.obj
 *.map
-*.EXE
+/*.EXE
+!*/*.exe
 *.MAP
 *.OBJ
 *.COM
 .vscode
+*.conf

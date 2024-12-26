@@ -1,54 +1,54 @@
-public DrawBricks_proc
-public CheckCollision_proc
-public ResetBricks
-public score_1
+public DrawBricks_proc2
+public CheckCollision_proc2
+public ResetBricks2
+public score_2
 
-extrn DISPLAY_LIVES:FAR
+extrn DISPLAY_LIVES2:FAR
 
 .model medium
 .stack 100h
 
-.DATA 
+.data
 
 ; BRICKS INFO
 brick_width DW 18    ; width of each brick
 brick_height DW 6    ; height of each brick
-brick_initial_x DW 0, 20, 40, 60, 80, 100, 120, 140   ; brick columns
+brick_initial_x DW 161, 181, 201, 221, 241, 261, 281, 301   ; brick columns
 brick_initial_y DW 15, 31, 47, 63                   ; brick rowsck
 brick_colors DB 3, 5, 9, 10
-power_up_brick_col EQU 60
+power_up_brick_col EQU 221
 power_up_brick_row EQU 31 ; power up brick position
 power_up_color EQU 4
 ROW_COUNT EQU 4       ; number of rows
 COLUMN_COUNT EQU 8    ; number of columns
 
-score_1 DB 0
+score_2 DB 0
 
-state_of_bricks DB ROW_COUNT * COLUMN_COUNT DUP(0)
+state_of_bricks2 DB ROW_COUNT * COLUMN_COUNT DUP(0)
+
 
 ; SCORE INFO
-; score_1 DW 0
+; score_2 DW 0
 ; score_label DB 'Score: ',  '$'
 ; score_string DB '0', "$"
 
-extrn BALL_X:word
-extrn BALL_Y:word
-extrn BALL_SIZE:word
-extrn BALL_VELOCITY_X:word
-extrn BALL_VELOCITY_Y:word
-extrn first_player_lives:byte
-
+extrn BALL_X_REC:word
+extrn BALL_Y_REC:word
+extrn BALL_SIZE_REC:word
+extrn BALL_VELOCITY_X2:word
+extrn BALL_VELOCITY_Y2:word
+extrn second_player_lives:byte
   
 .CODE
 
 ;---------------------------------------
-    ; Function: DrawBricks_proc
+    ; Function: DrawBricks_proc2
     ; Purpose: Draws the bricks on the screen
     ; Inputs: brick_initial_x, brick_initial_y => to determine the position of the bricks
     ; Outputs: Updates SI, DI to traverse the grid of bricks.
 ;---------------------------------------
 
-DrawBricks_proc PROC FAR
+DrawBricks_proc2 PROC FAR
    MOV AX, @DATA
    MOV DS, AX
    MOV SI, offset brick_initial_x      ; set the column
@@ -56,7 +56,7 @@ DrawBricks_proc PROC FAR
    MOV BX, 0
 
     ; MOV CL, 4
-    ; CALL DisplayScore_proc
+    ; CALL DisplayScore_proc2
 
    draw_bricks:
     cmp [SI], power_up_brick_col
@@ -68,7 +68,7 @@ DrawBricks_proc PROC FAR
     normal_color:
     MOV AL, brick_colors[BX]           ; set the color of the brick
     drawbrick_lbl:
-    CALL DrawBrick_proc                ; draw the brick at (SI,DI)
+    CALL DrawBrick_proc2                ; draw the brick at (SI,DI)
     ADD SI, 2                          ; draw the next brick horizontally
     CMP SI, offset brick_initial_x + (COLUMN_COUNT * 2)     ; compare the column with the last brick
     JB draw_bricks                     ; if SI < offset brick_initial_x + 8, continue the loop
@@ -81,10 +81,10 @@ DrawBricks_proc PROC FAR
     INC BX                             ; increment the color index
     JB draw_bricks                     ; if DI < offset brick_initial_y + 3, continue the loop
 RET
-DrawBricks_proc ENDP
+DrawBricks_proc2 ENDP
 
 ;---------------------------------------
-; Function: DrawBrick_proc
+; Function: DrawBrick_proc2
 ; Purpose: Draws a single brick on the screen.
 ; Inputs:
 ;  - SI: Pointer to the initial X position of the brick (column).
@@ -94,8 +94,9 @@ DrawBricks_proc ENDP
 ;  - Draws a rectangular block of pixels at the specified position.
 ;---------------------------------------
 
-DrawBrick_proc PROC NEAR 
-   PUSH BX
+DrawBrick_proc2 PROC NEAR
+ 
+   PUSH BX  
    MOV CX, [SI]                       ; set the column
    MOV DX, [DI]                       ; set the row
 
@@ -124,23 +125,26 @@ DrawBrick_proc PROC NEAR
         CMP BX, brick_height          ; compare BX with brick_height
     
         JNG draw_brick_horizontal     ; if AX < brick_height, continue the loop
-POP BX
+
+        POP BX
+    
 RET
-DrawBrick_proc ENDP
+DrawBrick_proc2 ENDP
 
 ;---------------------------------------
-; Function: CheckCollision_proc
+; Function: CheckCollision_proc2
 ; Purpose: Checks if the ball has collided with any of the bricks.
 ; Inputs:
 ;  - CL and CH: Row and column counters for the bricks.
 ;  - DX and BX: Initial Y and X positions of the bricks.
 ;  - AX: Ball position and size.
 ; Outputs:
-;  - Updates the state_of_bricks_row and state_of_bricks_col arrays.
-; - Calls DestroyBrick_proc if a collision is detected.
+;  - Updates the state_of_bricks2_row and state_of_bricks2_col arrays.
+; - Calls DestroyBrick_proc2 if a collision is detected.
 ;---------------------------------------
 
-CheckCollision_proc PROC FAR
+CheckCollision_proc2 PROC FAR
+
     MOV CL, 0                             ; row count   
     MOV CH, 0                             ; column count 
     MOV SI, offset brick_initial_x        ; set the column
@@ -151,8 +155,8 @@ CheckCollision_proc PROC FAR
 
         ; check collision with the brick => y axis
         ; check top edge
-            MOV AX, BALL_Y 
-            ADD AX, BALL_SIZE           ; calculate the bottom edge of the ball
+            MOV AX, BALL_Y_REC 
+            ADD AX, BALL_SIZE_REC           ; calculate the bottom edge of the ball
             CMP AX, DX                  ; compare with the top edge of the brick => if DX = AX bounce up
             JE bounce_up_down
             JNG dummyrow                ; if the ball is above the brick, skip to the next brick
@@ -160,7 +164,7 @@ CheckCollision_proc PROC FAR
 
         ; check bottom edge
             ADD DX, brick_height        ; calculate the bottom edge of the brick
-            SUB AX, BALL_SIZE
+            SUB AX, BALL_SIZE_REC
             CMP AX, DX                  ; compare with the bottom edge of the brick
             JE bounce_up_down           ; if DX = AX bounce down
             JG dummyrow                 ; if the ball is below the brick, skip to the next brick
@@ -171,15 +175,15 @@ CheckCollision_proc PROC FAR
             
             ; check collision with the brick => x axis 
             ; check left edge
-                MOV AX, BALL_X 
-                ADD AX, BALL_SIZE           ; calculate the right edge of the ball
+                MOV AX, BALL_X_REC 
+                ADD AX, BALL_SIZE_REC           ; calculate the right edge of the ball
                 CMP AX, BX                  ; compare with the left edge of the brick => if BX = AX bounce left
                 JE bounce_left_right
                 JNG next_column             ; if the ball is to the left of the brick, skip to the next brick
 
             ; check right edge
                 ADD BX, brick_width         ; calculate the right edge of the brick
-                SUB AX, BALL_SIZE
+                SUB AX, BALL_SIZE_REC
                 CMP AX, BX                  ; compare with the right edge of the brick
                 JE bounce_left_right        ; if BX = AX bounce right
                 JG next_column              ; if the ball is to the right of the brick, skip to the next brick
@@ -194,9 +198,9 @@ CheckCollision_proc PROC FAR
                 ADD AL, CH
                 MOV BL, AL           ; index of the brick in the state array
                 MOV BH, 0
-                CMP state_of_bricks[BX], 1   ; check if the brick is already hit
+                CMP state_of_bricks2[BX], 1   ; check if the brick is already hit
                 JE next_column               ; if hit with a black brick, continue   
-                NEG BALL_VELOCITY_Y
+                NEG BALL_VELOCITY_Y2
                 JMP destroy                  ; destroy the brick 
 
             bounce_left_right:
@@ -206,25 +210,26 @@ CheckCollision_proc PROC FAR
                 ADD AL, CH
                 MOV BL, AL    ; index of the brick in the state array
                 MOV BH, 0
-                CMP state_of_bricks[BX], 1
+                CMP state_of_bricks2[BX], 1
                 JE next_column
-                NEG BALL_VELOCITY_X
+                NEG BALL_VELOCITY_X2
                 JMP destroy
-                
+
         dummyrow: jmp next_row
         ; set the state of the brick to 1 and destroy the brick
          destroy:
-            INC score_1
+            ; CALL DisplayScore_proc2     ; display the score
+            INC score_2
 
             cmp [SI], power_up_brick_col
             JNE just_destroy
             cmp [DI], power_up_brick_row
             JNE just_destroy
-            inc first_player_lives
-            CALL DISPLAY_LIVES
+            inc second_player_lives
+            CALL DISPLAY_LIVES2
             just_destroy:
-            MOV state_of_bricks[BX], 1
-            CALL DestroyBrick_proc
+            MOV state_of_bricks2[BX], 1
+            CALL DestroyBrick_proc2
             JMP exit_collision
 
 
@@ -244,35 +249,34 @@ CheckCollision_proc PROC FAR
                 JMP row_loop                ; go to the next row
 
     exit_collision:
-      ;  CALL DisplayScore_proc     ; display the score
-
+   
 RET
-CheckCollision_proc ENDP
+CheckCollision_proc2 ENDP
 
 
-DestroyBrick_proc PROC NEAR
-
+DestroyBrick_proc2 PROC NEAR
+  
     ; set the color of the brick to black
     ; draw the brick at the same position
     MOV AL, 0
-    CALL DrawBrick_proc
+    CALL DrawBrick_proc2
+
 RET
-DestroyBrick_proc ENDP
+DestroyBrick_proc2 ENDP
 
 
-ResetBricks PROC FAR
-    MOV SI, offset state_of_bricks
+ResetBricks2 PROC FAR
+    MOV SI, offset state_of_bricks2
     MOV CX, ROW_COUNT * COLUMN_COUNT
 
-    reset_bricks:
+    reset_bricks2:
     MOV [SI], 0
     INC SI
-    LOOP reset_bricks     ; if SI < offset brick_initial_x + 8, continue the loop
+    LOOP reset_bricks2     ; if SI < offset brick_initial_x + 8, continue the loop
 RET
-ResetBricks ENDP
+ResetBricks2 ENDP
               
-              
-; DisplayScore_proc PROC FAR 
+; DisplayScore_proc2 PROC NEAR 
 ;     PUSH AX
 ;     PUSH BX
 ;     PUSH CX
@@ -291,23 +295,23 @@ ResetBricks ENDP
 ;     JMP print
 
 ;     score_increment_1:
-;         ADD score_1, 1
+;         ADD score_2, 1
 ;         JMP print
 ;     score_increment_2:
-;         ADD score_1, 2
+;         ADD score_2, 2
 ;         JMP print   
 ;     score_increment_3:
-;         ADD score_1, 3
+;         ADD score_2, 3
 ;         JMP print
 ;     score_increment_4:
-;         ADD score_1, 4
+;         ADD score_2, 4
 
 ; print:
 ;     ; Print the "SCORE" label
 ;     MOV AH, 02H               ; Set cursor position
 ;     MOV BH, 00H               ; Page number
 ;     MOV DH, 00H               ; Row
-;     MOV DL, 01H               ; Column
+;     MOV DL, 62               ; Column
 ;     INT 10H
 
 ;     ; Display "SCORE: "
@@ -315,7 +319,7 @@ ResetBricks ENDP
 ;     MOV DX, offset score_label
 ;     INT 21H
 
-;     MOV AX, score_1
+;     MOV AX, score_2
 ;     MOV BX, 10       ; base 10
 ;     XOR CX, CX       ; CX will store digit count
 
@@ -343,7 +347,7 @@ ResetBricks ENDP
 ;     MOV AH, 02H     ; set cursor position
 ;     MOV BH, 00H     ; page number
 ;     MOV DH, 00h     ; row
-;     MOV DL, 08h     ; column
+;     MOV DL, 69     ; column
 ;     INT 10H
 
 ;     ; display the score
@@ -357,12 +361,13 @@ ResetBricks ENDP
 ;     POP BX
 ;     POP AX     
 ; RET
-; DisplayScore_proc ENDP
+; DisplayScore_proc2 ENDP
+              
 
 
 
 
 
-END DrawBricks_proc
+END DrawBricks_proc2
 
 
